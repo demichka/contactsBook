@@ -1,4 +1,216 @@
-h1 {
-  color: blue; }
-  h1:hover {
-    color: green; }
+*, *:after, *:before {
+  box-sizing: border-box; }
+
+.container,
+.container-fluid {
+  margin: 0 auto;
+  position: relative;
+  min-height: 1px; }
+
+.container {
+  max-width: 1280px; }
+
+.row {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding: 0 15px; }
+  .row.items-center {
+    justify-content: center; }
+  @media (max-width: 768px) {
+    .row {
+      flex-direction: column; } }
+
+.row:after {
+  display: block;
+  content: "";
+  clear: both; }
+
+.container-fluid {
+  width: 100%; }
+
+.col-1,
+.col-2,
+.col-3,
+.col-4,
+.col-5,
+.col-6,
+.col-7,
+.col-8,
+.col-9,
+.col-10,
+.col-11,
+.col-12 {
+  position: relative;
+  padding: 0 15px;
+  min-height: 1px; }
+
+.col-12 {
+  width: 100%; }
+
+.col-11 {
+  width: 91.66667%; }
+  @media (max-width: 768px) {
+    .col-11 {
+      width: 100%; } }
+
+.col-10 {
+  width: 83.33333%; }
+  @media (max-width: 768px) {
+    .col-10 {
+      width: 100%; } }
+
+.col-9 {
+  width: 75%; }
+  @media (max-width: 768px) {
+    .col-9 {
+      width: 100%; } }
+
+.col-8 {
+  width: 66.66667%; }
+  @media (max-width: 768px) {
+    .col-8 {
+      width: 100%; } }
+
+.col-7 {
+  width: 58.33333%; }
+  @media (max-width: 768px) {
+    .col-7 {
+      width: 100%; } }
+
+.col-6 {
+  width: 50%; }
+  @media (max-width: 768px) {
+    .col-6 {
+      width: 100%; } }
+
+.col-5 {
+  width: 41.66667%; }
+  @media (max-width: 768px) {
+    .col-5 {
+      width: 100%; } }
+
+.col-4 {
+  width: 33.33333%; }
+  @media (max-width: 768px) {
+    .col-4 {
+      width: 100%; } }
+
+.col-3 {
+  width: 25%; }
+  @media (max-width: 768px) {
+    .col-3 {
+      width: 100%; } }
+
+.col-2 {
+  width: 16.66667%; }
+  @media (max-width: 768px) {
+    .col-2 {
+      width: 100%; } }
+
+.col-1 {
+  width: 8.33333%; }
+  @media (max-width: 768px) {
+    .col-1 {
+      width: 100%; } }
+
+.align-middle {
+  float: none;
+  margin: auto; }
+
+body {
+  font-family: "Roboto Slab", serif;
+  background: url("/img/seamless-1807364_960_720.jpg");
+  color: #00120B;
+  font-size: 18px; }
+
+a {
+  text-decoration: none; }
+
+::selection {
+  background-color: #d14546;
+  color: #F6F5AE; }
+
+.wrap {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.35);
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background: url("/img/glossy-groove-stripe-pattern-pale-orange.jpg"); }
+  .wrap > div {
+    background-color: rgba(247, 247, 255, 0.55);
+    min-height: 60vh;
+    box-shadow: 3px 3px 9px rgba(0, 0, 0, 0.25); }
+
+.content {
+  box-shadow: 0 20px 30px inset rgba(100, 25, 25, 0.6); }
+
+header {
+  position: relative;
+  min-height: 10vh;
+  background: url("/img/seamless-1970895_960_720.jpg");
+  box-shadow: 0 -20px 20px inset rgba(0, 0, 0, 0.35); }
+  @media (min-width: 768px) {
+    header {
+      min-height: 20vh; } }
+  header h1 {
+    color: #F6F5AE;
+    text-align: center;
+    white-space: nowrap;
+    font-family: "PT Serif Caption", serif;
+    text-shadow: 2px 2px rgba(0, 0, 0, 0.95);
+    text-transform: capitalize; }
+    @media (min-width: 768px) {
+      header h1 {
+        font-size: 4rem;
+        line-height: 6rem; } }
+
+footer p {
+  margin: 1.125rem 0;
+  text-align: center;
+  color: rgba(246, 245, 174, 0.4);
+  font-family: "PT Serif Caption", serif;
+  text-transform: capitalize;
+  white-space: nowrap;
+  text-shadow: 2px 2px #641919; }
+
+.contact-card {
+  margin: 2.5rem 0;
+  background-color: rgba(247, 247, 255, 0.8);
+  border: 1px solid #D3BCC0; }
+  .contact-card > div {
+    padding: 20px; }
+  .contact-card.edit a.contact-item {
+    display: none; }
+  .contact-card.edit .control {
+    display: block; }
+
+i[class^="icofont"] {
+  font-size: 2rem;
+  vertical-align: baseline; }
+
+.contact-card-heading h3 {
+  margin: 0; }
+
+.control {
+  padding: 7px 5px;
+  border: 1px solid #D3BCC0;
+  display: none; }
+  .control:focus {
+    outline: 0;
+    box-shadow: 1px 1px 3px #D3BCC0; }
+
+.contact-card-body {
+  border-top: 1px solid #f1eaeb; }
+  .contact-card-body dl dd {
+    display: flex;
+    align-items: center;
+    margin: 0 0 1.125rem 0; }
+    .contact-card-body dl dd i {
+      color: #641919;
+      margin-right: 5px; }
+    .contact-card-body dl dd a {
+      white-space: nowrap;
+      color: #3D3B30; }
+      .contact-card-body dl dd a:hover {
+        color: #641919; }

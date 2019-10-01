@@ -1,0 +1,22 @@
+$width-100: 100%;
+$grid: 12;
+$font-roboto-slab: 'Roboto Slab', serif;
+$font-caption: 'PT Serif Caption', serif;
+
+$primary-color: rgb(209,69,70);
+$yellow: #F6F5AE;
+$white: #F7F7FF;
+$olive-black: #3D3B30;
+$gray: #948D9B;
+$black: #00120B;
+$pale: #D3BCC0;
+
+
+@mixin col-width($grid, $col) {
+    width: 100% / $grid * $col;
+    @media (max-width: 768px) {
+        & {
+            width: 100%;
+        }
+    }  
+}
