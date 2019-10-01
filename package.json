@@ -1,0 +1,33 @@
+{
+  "name": "contactsbook",
+  "version": "1.0.0",
+  "description": "contactsBook example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-sass": "node-sass public/sass/main.scss public/css/main.css --watch",
+    "compile-sass": "node-sass public/sass/main.scss public/css/main.comp.css",
+    "prefix-css": "postcss --use autoprefixer -b \"last 5 versions\" public/css/main.css -o public/css/style.prefix.css",
+    "compress-css": "node-sass public/css/style.prefix.css public/css/main.css --output-style compressed",
+    "build-css": "npm-run-all compile-sass prefix-css compress-css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/demichka/contactsBook.git"
+  },
+  "author": "Demichka",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/demichka/contactsBook/issues"
+  },
+  "homepage": "https://github.com/demichka/contactsBook#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-sass": "^4.12.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.6.1",
+    "npm-run-all": "^4.1.5",
+    "postcss-cli": "^6.1.3"
+  }
+}
