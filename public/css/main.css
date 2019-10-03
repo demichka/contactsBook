@@ -238,12 +238,12 @@ i[class^="icofont"] {
 
 .contact-card-body {
   padding-bottom: 15px; }
-  .contact-card-body div[class^="col"]:first-child {
+  .contact-card-body dl[class^="col"]:first-child {
     border-right: 1px solid #D3BCC0; }
   @media (max-width: 375px) {
-    .contact-card-body div[class^="col"] {
+    .contact-card-body dl[class^="col"] {
       padding: 0; }
-      .contact-card-body div[class^="col"]:first-child {
+      .contact-card-body dl[class^="col"]:first-child {
         border-right-color: transparent; }
     .contact-card-body i {
       font-size: 1.2rem; } }
