@@ -22,16 +22,19 @@
     &.items-center {
         justify-content: center;
     }
-    @media (max-width: 768px) {
+    &:after {
+        display: block;
+        content: "";
+        clear: both;
+    }
+    &.no-gutters {
+        padding: 0;
+    }    
+    @media (max-width: 767px) {
         & {
             flex-direction: column;
         }
     }  
-}
-.row:after {
-    display: block;
-    content: "";
-    clear: both;
 }
 
 .container-fluid {
