@@ -6,26 +6,46 @@ body {
     background: url('/img/seamless-1807364_960_720.jpg');
     color: $black;
     font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+main {
+    flex: 1;
 }
 
 a {
     text-decoration: none;
 }
 
+button {
+    &:focus {
+        outline: 0;
+    }
+}
+
 ::selection {
     background-color: $primary-color;
     color: $yellow;
 }
+
 .wrap {
     position: relative;
-    background-color: rgba(0,0,0, .35);
+    background-color: rgba(0, 0, 0, .35);
     padding-top: 4rem;
     padding-bottom: 4rem;
+    min-height: 30vh;
     background: url('/img/glossy-groove-stripe-pattern-pale-orange.jpg');
-    & > div {
+
+    &>div {
         background-color: transparentize($white, .45);
-        min-height: 60vh;
-        box-shadow: 3px 3px 9px rgba(0,0,0, .25);
+        min-height: 30vh;
+        box-shadow: 3px 3px 9px rgba(0, 0, 0, .25);
     }
 }
 
@@ -37,17 +57,20 @@ header {
     position: relative;
     min-height: 10vh;
     background: url('/img/seamless-1970895_960_720.jpg');
-    box-shadow: 0 -20px 20px inset rgba(0,0,0, .35);
+    box-shadow: 0 -20px 20px inset rgba(0, 0, 0, .35);
+
     @media (min-width: 768px) {
         min-height: 20vh;
     }
+
     h1 {
         color: $yellow;
         text-align: center;
         white-space: nowrap;
         font-family: $font-caption;
-        text-shadow:  2px 2px rgba(0,0,0, .95); 
+        text-shadow: 2px 2px rgba(0, 0, 0, .95);
         text-transform: capitalize;
+
         @media (min-width: 768px) {
             font-size: 4rem;
             line-height: 6rem;
@@ -63,7 +86,7 @@ footer {
         font-family: $font-caption;
         text-transform: capitalize;
         white-space: nowrap;
-        text-shadow:  2px 2px darken($primary-color, 30%); 
+        text-shadow: 2px 2px darken($primary-color, 30%);
     }
 }
 
@@ -72,21 +95,55 @@ footer {
     background-color: transparentize($white, 0.2);
     border: 1px solid $white;
 
+    .btn-cancel {
+        display: none;
+    }
+
     &.edit {
         a {
-            &.contact-item{
+            &.contact-item {
                 display: none;
             }
         }
-        .btn {
-            &.btn-edit {
-                background-color: $green;
-                border-color: $green;
-                color: $onyx;
-            }
-        }
+
         .control {
             display: block;
+        }
+
+        .inputBtns {
+            display: block;
+        }
+
+        .btn-cancel {
+            display: block;
+        }
+    }
+
+    &.new {
+        .btn-cancel {
+            display: block;
+        }
+
+        dl {
+            dd {
+                &:first-child {
+                    .inputBtns {
+                        .add-i {
+                            display: block;
+                        }
+
+                        .remove-i {
+                            display: none;
+                        }
+                    }
+                }
+
+                .inputBtns {
+                    .add-i {
+                        display: none;
+                    }
+                }
+            }
         }
     }
 }
@@ -100,13 +157,18 @@ i[class^="icofont"] {
 .contact-card-heading {
     display: flex;
     justify-content: space-between;
+    position: relative;
+
     @media (max-width: 768px) {
         flex-direction: column;
         padding: 10px 15px;
     }
+
     padding: 20px 30px;
+
     h3 {
         margin: 0;
+
         @media (max-width: 768px) {
             margin-bottom: 20px;
         }
@@ -116,6 +178,7 @@ i[class^="icofont"] {
 .btn-group {
     display: flex;
     justify-content: space-between;
+
     @media (max-width: 768px) {
         margin-bottom: 20px;
     }
@@ -126,65 +189,130 @@ i[class^="icofont"] {
     padding: 7px 9px;
     text-align: center;
     margin-left: 5px;
-    &.btn-edit {
-        background-color: $blue;
-        border: 1px solid $blue;
-        color: $white;
-    }
-    &.btn-remove {
-        background-color: $gray;
-        color: $white;
-        border: 1px solid $gray;
+    color: $white;
 
+    &.btn-edit,
+    &.btn-save {
+        @include btn($btn-edit-color);
+    }
+
+    &.btn-remove,
+    &.btn-reset {
+        @include btn($btn-remove-color);
+    }
+
+    &.btn-cancel {
+        @include btn($btn-cancel-color);
     }
 }
+
 .control {
     width: 100%;
     padding: 7px 5px;
     border: 1px solid $pale;
     display: none;
+
     &:focus {
         outline: 0;
-       box-shadow: 1px 1px 3px $pale;
+        box-shadow: 1px 1px 3px $pale;
+    }
+}
+
+.inputBtns {
+    display: none;
+
+    .inputBtn {
+        font-size: 1.5rem;
+        cursor: pointer;
+        margin-left: 7px;
+        height: 30px;
+        width: 30px;
+        display: block;
+
+        &.add-i {
+            @include inputBtn($green);
+        }
+
+        &.remove-i {
+            @include inputBtn($primary-color);
+        }
     }
 }
 
 .contact-card-body {
     padding-bottom: 15px;
-    // border-top: 1px solid lighten($pale, 15%);
+
     dl[class^="col"]:first-child {
         border-right: 1px solid $pale;
     }
+
     @media (max-width: 375px) {
         dl[class^="col"] {
             padding: 0;
+
             &:first-child {
                 border-right-color: transparent;
             }
         }
+
         i {
             font-size: 1.2rem;
         }
     }
+
     dl {
         dd {
             display: flex;
             align-items: center;
             margin: 0 0 1.125rem 0;
+
             i {
                 color: darken($primary-color, 30%);
                 margin-right: 5px;
             }
+
             a {
                 white-space: nowrap;
                 color: $olive-black;
+
                 &:hover {
                     color: darken($primary-color, 30%);
                 }
+
                 @media (max-width: 375px) {
                     font-size: .875rem;
                 }
             }
         }
+    }
+}
+
+.welcome {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+
+    h2 {
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        padding: 10px 15px;
+    }
+
+}
+
+.errorMsg {
+    position: absolute;
+    top: -15px;
+    font-size: .75rem;
+    left: 0;
+    width: 100%;
+    color: red;
+    text-align: center;
+
+    &.error-name {
+        top: 3px;
     }
 }
