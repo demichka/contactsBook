@@ -12,6 +12,8 @@ const contactsBookInit = (() => {
 		};
 	}
 
+	console.log(store, "store");
+
 	store.save = () => {
 		window.localStorage.contactsBook = JSON.stringify(store.contactsBook);
 	};
@@ -100,41 +102,60 @@ const contactsBookInit = (() => {
 		footer.append(p);
 	})();
 
+	const createBtn = action => {
+		let btn = document.createElement("button");
+		btn.classList.add("btn", `btn-${action}`);
+		if (action === "edit") {
+			btn.title = "Edit contact";
+			btn.innerHTML = "Edit";
+			btn.type = "button";
+		}
+		if (action === "save") {
+			btn.title = "Save changes";
+			btn.innerHTML = "Save";
+			btn.type = "submit";
+		}
+		if (action === "remove") {
+			btn.title = "Remove contact";
+			btn.innerHTML = "Remove";
+			btn.type = "button";
+		}
+		if (action === "cancel") {
+			btn.title = "Cancel";
+			btn.innerHTML = "Cancel";
+			btn.type = "button";
+		}
+		if (action === "reset") {
+			btn.title = "Reset form";
+			btn.innerHTML = "Reset";
+			btn.type = "reset";
+		}
+
+		return btn;
+	};
+
 	//create buttons to edit or remove contact card
 	const createBtnGroup = type => {
-		let btnGroup, btnEdit, btnRemove, btnCancel;
+		let btnGroup, btnSave, btnEdit, btnRemove, btnCancel;
 		btnGroup = createDiv("btn-group");
-		btnEdit = document.createElement("button");
-		btnEdit.classList.add("btn");
-		btnEdit.type = "submit";
-		btnRemove = document.createElement("button");
-		btnRemove.classList.add("btn");
-		btnRemove.type = "button";
-		btnCancel = document.createElement("button");
-		btnCancel.classList.add("btn");
-		btnCancel.type = "button";
-		btnCancel.classList.add("btn-cancel");
-		btnCancel.title = "Cancel";
-		btnCancel.innerHTML = "Cancel";
-
 		if (type === "new") {
-			btnEdit.classList.add("btn-save");
-			btnEdit.title = "Save contact";
-			btnEdit.innerHTML = "Save";
-			btnRemove.classList.add("btn-reset");
-			btnRemove.title = "Reset form";
-			btnRemove.innerHTML = "Reset";
-			btnRemove.type = "Reset";
+			btnSave = createBtn("save");
+			btnRemove = createBtn("reset");
+			btnCancel = createBtn("cancel");
+			btnGroup.innerHTML +=
+				btnSave.outerHTML + btnRemove.outerHTML + btnCancel.outerHTML;
 		} else {
-			btnEdit.classList.add("btn-edit");
-			btnEdit.title = "Edit contact";
-			btnEdit.innerHTML = "Edit";
-			btnRemove.classList.add("btn-remove");
-			btnRemove.title = "Remove contact";
-			btnRemove.innerHTML = "Remove";
+			btnSave = createBtn("save");
+			btnEdit = createBtn("edit");
+			btnRemove = createBtn("remove");
+			btnCancel = createBtn("cancel");
+			btnGroup.innerHTML +=
+				btnSave.outerHTML +
+				btnEdit.outerHTML +
+				btnRemove.outerHTML +
+				btnCancel.outerHTML;
 		}
-		btnGroup.innerHTML +=
-			btnEdit.outerHTML + btnRemove.outerHTML + btnCancel.outerHTML;
+
 		return btnGroup;
 	};
 
@@ -168,43 +189,57 @@ const contactsBookInit = (() => {
 	};
 
 	//create contact list item
-	const createlistItem = (type, val) => {
+	const createlistItem = (mode, type, val) => {
 		let listItem, icon, valueLink, valueInput;
 		listItem = document.createElement("dd");
 		icon = document.createElement("i");
-		valueLink = document.createElement("a");
-		valueLink.classList.add("contact-item");
-		valueLink.innerHTML = val;
-		valueInput = document.createElement("input");
-		valueInput.setAttribute("value", val);
-		valueInput.classList.add("control");
 
-		if (type === "phone") {
-			icon.classList.add("icofont-mobile-phone");
-			valueLink.href = "tel:" + val;
-			valueLink.title = "Call me";
-			valueInput.classList.add("control", "phonef");
-			valueInput.placeholder = "Enter phone number";
-			valueInput.maxLength = "11";
-			valueInput.type = "phone";
-			valueInput.name = "phonef";
+		if (mode === "edit") {
+			valueInput = document.createElement("input");
+			valueInput.setAttribute("value", val);
+			valueInput.classList.add("control");
+			if (type === "phone") {
+				icon.classList.add("icofont-mobile-phone");
+				valueInput.classList.add("control", "phonef");
+				valueInput.placeholder = "Enter phone number";
+				valueInput.maxLength = "11";
+				valueInput.type = "phone";
+				valueInput.name = "phonef";
+			}
+			if (type === "email") {
+				icon.classList.add("icofont-email");
+				valueInput.classList.add("control", "emailf");
+				valueInput.placeholder = "Enter email address";
+				valueInput.maxLength = "30";
+				valueInput.name = "emailf";
+				valueInput.type = "email";
+			}
+
+			listItem.innerHTML +=
+				icon.outerHTML +
+				valueInput.outerHTML +
+				createInputBtns().outerHTML;
 		}
-		if (type === "email") {
-			icon.classList.add("icofont-email");
-			valueLink.href = "mailto:" + val;
-			valueLink.title = "Send me mail";
-			valueInput.classList.add("control", "emailf");
-			valueInput.placeholder = "Enter email address";
-			valueInput.maxLength = "30";
-			valueInput.name = "emailf";
-			valueInput.type = "email";
+		if (mode === "read") {
+			valueLink = document.createElement("a");
+			valueLink.classList.add("contact-item");
+			valueLink.innerHTML = val;
+			if (type === "phone") {
+				icon.classList.add("icofont-mobile-phone");
+				valueLink.href = "tel:" + val;
+				valueLink.title = "Call me";
+			}
+			if (type === "email") {
+				icon.classList.add("icofont-email");
+				valueLink.href = "mailto:" + val;
+				valueLink.title = "Send me mail";
+			}
+			listItem.innerHTML +=
+				icon.outerHTML +
+				valueLink.outerHTML +
+				createInputBtns().outerHTML;
 		}
 
-		listItem.innerHTML +=
-			icon.outerHTML +
-			valueLink.outerHTML +
-			valueInput.outerHTML +
-			createInputBtns().outerHTML;
 		return listItem;
 	};
 
@@ -215,14 +250,14 @@ const contactsBookInit = (() => {
 	};
 
 	//create input to enter name on the new contact card
-	const createnameInputut = () => {
-		let nameInputut = document.createElement("input");
-		nameInputut.classList.add("control", "namef");
-		nameInputut.type = "text";
-		nameInputut.placeholder = "Enter contact's name";
-		nameInputut.required = "required";
-		nameInputut.name = "namef";
-		return nameInputut;
+	const createNameInput = () => {
+		let nameInput = document.createElement("input");
+		nameInput.classList.add("control", "namef");
+		nameInput.type = "text";
+		nameInput.placeholder = "Enter contact's name";
+		nameInput.required = "required";
+		nameInput.name = "namef";
+		return nameInput;
 	};
 
 	//create heading with info if contacts book contains contacts or not and suggestion to add new one
@@ -266,26 +301,34 @@ const contactsBookInit = (() => {
 		emailList.classList.add("col-6", "email-list");
 
 		if (contact) {
+			card.classList.add("read");
+			card.setAttribute("data-contactId", contact.id);
 			let lastImage = contact.data[contact.data.length - 1];
 			cardHeading = createCardHeading(lastImage.name);
 			cardTop.innerHTML +=
 				cardHeading.outerHTML + createBtnGroup().outerHTML;
 			if (lastImage.phones) {
 				phoneList.innerHTML += lastImage.phones
-					.map(phone => createlistItem("phone", phone).outerHTML)
+					.map(
+						phone =>
+							createlistItem("read", "phone", phone).outerHTML
+					)
 					.join("\n");
 			}
 			if (lastImage.emails) {
 				emailList.innerHTML += lastImage.emails
-					.map(email => createlistItem("email", email).outerHTML)
+					.map(
+						email =>
+							createlistItem("read", "email", email).outerHTML
+					)
 					.join("\n");
 			}
 		} else {
 			card.classList.add("edit", "new");
-			cardTop.append(createnameInputut());
+			cardTop.append(createNameInput());
 			cardTop.innerHTML += createBtnGroup("new").outerHTML;
-			phoneList.append(createlistItem("phone", ""));
-			emailList.append(createlistItem("email", ""));
+			phoneList.append(createlistItem("edit", "phone", ""));
+			emailList.append(createlistItem("edit", "email", ""));
 		}
 
 		cardBody.innerHTML += phoneList.outerHTML + emailList.outerHTML;
@@ -349,8 +392,47 @@ const contactsBookInit = (() => {
 		}
 	});
 
-	let editContactBtn = listen("click", ".contact-card .btn-edit", e => {
+	let editContactBtn = listen("click", ".read .btn-edit", e => {
 		e.preventDefault();
+		let card, links, input, phoneList, emailList, name, nameInput;
+		card = e.target.offsetParent.parentNode;
+		card.classList.add("edit");
+		card.classList.remove("read");
+		name = card.getElementsByTagName("h3")[0];
+		nameInput = createNameInput();
+		nameInput.value = name.innerHTML;
+
+		name.parentNode.replaceChild(nameInput, name);
+		phoneList = card.getElementsByClassName("phone-list")[0];
+		emailList = card.getElementsByClassName("email-list")[0];
+		links = card.getElementsByClassName("contact-item");
+
+		phoneList.prepend(createlistItem("edit", "phone", ""));
+		emailList.prepend(createlistItem("edit", "email", ""));
+
+		for (let i = 0; i < links.length; i++) {
+			let el = links[i];
+			console.log(el.parentNode.offsetParent);
+			input = document.createElement("input");
+			input.classList.add("control", "contact-item");
+			input.value = el.innerHTML;
+
+			el.parentNode.replaceChild(input, el);
+			if (
+				input.parentNode.offsetParent.classList.contains("phone-list")
+			) {
+				input.name = "phonef";
+				input.type = "phone";
+			}
+			if (
+				input.parentNode.offsetParent.classList.contains("email-list")
+			) {
+				input.name = "emailf";
+				input.type = "email";
+			}
+		}
+
+		e.target.parentNode.removeChild(e.target);
 	});
 
 	let cancelContactBtn = listen("click", ".btn-cancel", e => {
@@ -394,7 +476,7 @@ const contactsBookInit = (() => {
 	let addPhoneNumber = listen("click", ".phone-list .add-i", e => {
 		let val = e.target.parentElement.previousElementSibling.value;
 		if (val !== "") {
-			e.target.offsetParent.prepend(createlistItem("phone", ""));
+			e.target.offsetParent.prepend(createlistItem("edit", "phone", ""));
 		} else {
 			inputsErrors.errorPhone = true;
 		}
@@ -410,7 +492,7 @@ const contactsBookInit = (() => {
 	let addEmailAddress = listen("click", ".email-list .add-i", e => {
 		let val = e.target.parentElement.previousElementSibling.value;
 		if (val !== "") {
-			e.target.offsetParent.prepend(createlistItem("email", ""));
+			e.target.offsetParent.prepend(createlistItem("edit", "email", ""));
 		} else {
 			inputsErrors.errorEmail = true;
 		}
@@ -427,6 +509,8 @@ const contactsBookInit = (() => {
 
 	let saveContact = listen("click", ".btn-save", e => {
 		e.preventDefault();
+		let card = e.target.offsetParent.parentNode;
+		console.log(card, "card");
 		let nameInput = e.target.offsetParent.getElementsByClassName(
 			"namef"
 		)[0];

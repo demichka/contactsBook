@@ -99,16 +99,22 @@ footer {
         display: none;
     }
 
-    &.edit {
-        a {
-            &.contact-item {
-                display: none;
-            }
+    &.read {
+
+        .btn-save {
+            display: none;
         }
 
-        .control {
-            display: block;
+        .inputBtns {
+            display: none;
         }
+
+        .btn-cancel {
+            display: none;
+        }
+    }
+
+    &.edit {
 
         .inputBtns {
             display: block;
@@ -210,7 +216,6 @@ i[class^="icofont"] {
     width: 100%;
     padding: 7px 5px;
     border: 1px solid $pale;
-    display: none;
 
     &:focus {
         outline: 0;
@@ -219,7 +224,6 @@ i[class^="icofont"] {
 }
 
 .inputBtns {
-    display: none;
 
     .inputBtn {
         font-size: 1.5rem;

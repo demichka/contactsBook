@@ -194,10 +194,12 @@ footer p {
   border: 1px solid #F7F7FF; }
   .contact-card .btn-cancel {
     display: none; }
-  .contact-card.edit a.contact-item {
+  .contact-card.read .btn-save {
     display: none; }
-  .contact-card.edit .control {
-    display: block; }
+  .contact-card.read .inputBtns {
+    display: none; }
+  .contact-card.read .btn-cancel {
+    display: none; }
   .contact-card.edit .inputBtns {
     display: block; }
   .contact-card.edit .btn-cancel {
@@ -277,43 +279,40 @@ i[class^="icofont"] {
 .control {
   width: 100%;
   padding: 7px 5px;
-  border: 1px solid #D3BCC0;
-  display: none; }
+  border: 1px solid #D3BCC0; }
   .control:focus {
     outline: 0;
     box-shadow: 1px 1px 3px #D3BCC0; }
 
-.inputBtns {
-  display: none; }
-  .inputBtns .inputBtn {
-    font-size: 1.5rem;
-    cursor: pointer;
-    margin-left: 7px;
-    height: 30px;
-    width: 30px;
-    display: block; }
-    .inputBtns .inputBtn.add-i {
-      border-radius: 100%; }
-      .inputBtns .inputBtn.add-i i {
-        color: #A0C83D;
-        pointer-events: none; }
-      .inputBtns .inputBtn.add-i:hover > i {
-        color: #82a42e; }
-      .inputBtns .inputBtn.add-i:active {
-        box-shadow: 5px 5px 10px rgba(160, 200, 61, 0.6); }
-        .inputBtns .inputBtn.add-i:active > i {
-          color: #729029; }
-    .inputBtns .inputBtn.remove-i {
-      border-radius: 100%; }
-      .inputBtns .inputBtn.remove-i i {
-        color: #d14546;
-        pointer-events: none; }
-      .inputBtns .inputBtn.remove-i:hover > i {
-        color: #b62d2e; }
-      .inputBtns .inputBtn.remove-i:active {
-        box-shadow: 5px 5px 10px rgba(209, 69, 70, 0.6); }
-        .inputBtns .inputBtn.remove-i:active > i {
-          color: #a22829; }
+.inputBtns .inputBtn {
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 7px;
+  height: 30px;
+  width: 30px;
+  display: block; }
+  .inputBtns .inputBtn.add-i {
+    border-radius: 100%; }
+    .inputBtns .inputBtn.add-i i {
+      color: #A0C83D;
+      pointer-events: none; }
+    .inputBtns .inputBtn.add-i:hover > i {
+      color: #82a42e; }
+    .inputBtns .inputBtn.add-i:active {
+      box-shadow: 5px 5px 10px rgba(160, 200, 61, 0.6); }
+      .inputBtns .inputBtn.add-i:active > i {
+        color: #729029; }
+  .inputBtns .inputBtn.remove-i {
+    border-radius: 100%; }
+    .inputBtns .inputBtn.remove-i i {
+      color: #d14546;
+      pointer-events: none; }
+    .inputBtns .inputBtn.remove-i:hover > i {
+      color: #b62d2e; }
+    .inputBtns .inputBtn.remove-i:active {
+      box-shadow: 5px 5px 10px rgba(209, 69, 70, 0.6); }
+      .inputBtns .inputBtn.remove-i:active > i {
+        color: #a22829; }
 
 .contact-card-body {
   padding-bottom: 15px; }
