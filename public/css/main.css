@@ -196,21 +196,21 @@ footer p {
     display: none; }
   .contact-card.read .btn-save {
     display: none; }
-  .contact-card.read .inputBtns {
+  .contact-card.read .inputBtn {
     display: none; }
   .contact-card.read .btn-cancel {
     display: none; }
-  .contact-card.edit .inputBtns {
+  .contact-card.edit .inputBtn {
     display: block; }
   .contact-card.edit .btn-cancel {
     display: block; }
   .contact-card.new .btn-cancel {
     display: block; }
-  .contact-card.new dl dd:first-child .inputBtns .add-i {
+  .contact-card.new dl dd:first-child .inputBtn.add-i {
     display: block; }
-  .contact-card.new dl dd:first-child .inputBtns .remove-i {
+  .contact-card.new dl dd:first-child .inputBtn.remove-i {
     display: none; }
-  .contact-card.new dl dd .inputBtns .add-i {
+  .contact-card.new dl dd .inputBtn.add-i {
     display: none; }
 
 i[class^="icofont"] {
@@ -284,34 +284,34 @@ i[class^="icofont"] {
     outline: 0;
     box-shadow: 1px 1px 3px #D3BCC0; }
 
-.inputBtns .inputBtn {
+.inputBtn {
   font-size: 1.5rem;
   cursor: pointer;
   margin-left: 7px;
   height: 30px;
   width: 30px;
   display: block; }
-  .inputBtns .inputBtn.add-i {
+  .inputBtn.add-i {
     border-radius: 100%; }
-    .inputBtns .inputBtn.add-i i {
+    .inputBtn.add-i i {
       color: #A0C83D;
       pointer-events: none; }
-    .inputBtns .inputBtn.add-i:hover > i {
+    .inputBtn.add-i:hover > i {
       color: #82a42e; }
-    .inputBtns .inputBtn.add-i:active {
+    .inputBtn.add-i:active {
       box-shadow: 5px 5px 10px rgba(160, 200, 61, 0.6); }
-      .inputBtns .inputBtn.add-i:active > i {
+      .inputBtn.add-i:active > i {
         color: #729029; }
-  .inputBtns .inputBtn.remove-i {
+  .inputBtn.remove-i {
     border-radius: 100%; }
-    .inputBtns .inputBtn.remove-i i {
+    .inputBtn.remove-i i {
       color: #d14546;
       pointer-events: none; }
-    .inputBtns .inputBtn.remove-i:hover > i {
+    .inputBtn.remove-i:hover > i {
       color: #b62d2e; }
-    .inputBtns .inputBtn.remove-i:active {
+    .inputBtn.remove-i:active {
       box-shadow: 5px 5px 10px rgba(209, 69, 70, 0.6); }
-      .inputBtns .inputBtn.remove-i:active > i {
+      .inputBtn.remove-i:active > i {
         color: #a22829; }
 
 .contact-card-body {

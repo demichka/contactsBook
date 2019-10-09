@@ -105,7 +105,7 @@ footer {
             display: none;
         }
 
-        .inputBtns {
+        .inputBtn {
             display: none;
         }
 
@@ -116,7 +116,7 @@ footer {
 
     &.edit {
 
-        .inputBtns {
+        .inputBtn {
             display: block;
         }
 
@@ -133,19 +133,19 @@ footer {
         dl {
             dd {
                 &:first-child {
-                    .inputBtns {
-                        .add-i {
+                    .inputBtn {
+                        &.add-i {
                             display: block;
                         }
 
-                        .remove-i {
+                        &.remove-i {
                             display: none;
                         }
                     }
                 }
 
-                .inputBtns {
-                    .add-i {
+                .inputBtn {
+                    &.add-i {
                         display: none;
                     }
                 }
@@ -223,23 +223,20 @@ i[class^="icofont"] {
     }
 }
 
-.inputBtns {
+.inputBtn {
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 7px;
+    height: 30px;
+    width: 30px;
+    display: block;
 
-    .inputBtn {
-        font-size: 1.5rem;
-        cursor: pointer;
-        margin-left: 7px;
-        height: 30px;
-        width: 30px;
-        display: block;
+    &.add-i {
+        @include inputBtn($green);
+    }
 
-        &.add-i {
-            @include inputBtn($green);
-        }
-
-        &.remove-i {
-            @include inputBtn($primary-color);
-        }
+    &.remove-i {
+        @include inputBtn($primary-color);
     }
 }
 

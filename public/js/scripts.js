@@ -169,23 +169,23 @@ const contactsBookInit = (() => {
 	};
 
 	//create buttons to save or remove new contact-item (phone or email)
-	const createInputBtns = () => {
-		let btnGroup, btnOk, btnCancel, btnOkIcon, btnCancelIcon;
-		btnGroup = createDiv("inputBtns");
-		btnOk = document.createElement("span");
-		btnOk.title = "Add";
-		btnCancel = document.createElement("span");
-		btnCancel.title = "Remove";
-		btnOkIcon = document.createElement("i");
-		btnOk.classList.add("inputBtn", "add-i");
-		btnOkIcon.classList.add("icofont-plus-circle");
-		btnCancelIcon = document.createElement("i");
-		btnCancel.classList.add("inputBtn", "remove-i");
-		btnCancelIcon.classList.add("icofont-minus-circle");
-		btnOk.append(btnOkIcon);
-		btnCancel.append(btnCancelIcon);
-		btnGroup.innerHTML += btnOk.outerHTML + btnCancel.outerHTML;
-		return btnGroup;
+	const createInputBtn = action => {
+		let btn, btnIcon;
+		btn = document.createElement("span");
+		btn.classList.add("inputBtn");
+		btnIcon = document.createElement("i");
+		if (action === "add") {
+			btn.classList.add("add-i");
+			btn.title = "Add item";
+			btnIcon.classList.add("icofont-plus-circle");
+		}
+		if (action === "remove") {
+			btn.classList.add("remove-i");
+			btn.title = "Remove item";
+			btnIcon.classList.add("icofont-minus-circle");
+		}
+		btn.append(btnIcon);
+		return btn;
 	};
 
 	//create contact list item
@@ -218,7 +218,7 @@ const contactsBookInit = (() => {
 			listItem.innerHTML +=
 				icon.outerHTML +
 				valueInput.outerHTML +
-				createInputBtns().outerHTML;
+				createInputBtn("add").outerHTML;
 		}
 		if (mode === "read") {
 			valueLink = document.createElement("a");
@@ -234,10 +234,7 @@ const contactsBookInit = (() => {
 				valueLink.href = "mailto:" + val;
 				valueLink.title = "Send me mail";
 			}
-			listItem.innerHTML +=
-				icon.outerHTML +
-				valueLink.outerHTML +
-				createInputBtns().outerHTML;
+			listItem.innerHTML += icon.outerHTML + valueLink.outerHTML;
 		}
 
 		return listItem;
@@ -303,7 +300,7 @@ const contactsBookInit = (() => {
 		if (contact) {
 			card.classList.add("read");
 			card.setAttribute("data-contactId", contact.id);
-			let lastImage = contact.data[contact.data.length - 1];
+			let lastImage = contact.data[0];
 			cardHeading = createCardHeading(lastImage.name);
 			cardTop.innerHTML +=
 				cardHeading.outerHTML + createBtnGroup().outerHTML;
@@ -324,7 +321,7 @@ const contactsBookInit = (() => {
 					.join("\n");
 			}
 		} else {
-			card.classList.add("edit", "new");
+			card.classList.add("new");
 			cardTop.append(createNameInput());
 			cardTop.innerHTML += createBtnGroup("new").outerHTML;
 			phoneList.append(createlistItem("edit", "phone", ""));
@@ -412,7 +409,6 @@ const contactsBookInit = (() => {
 
 		for (let i = 0; i < links.length; i++) {
 			let el = links[i];
-			console.log(el.parentNode.offsetParent);
 			input = document.createElement("input");
 			input.classList.add("control", "contact-item");
 			input.value = el.innerHTML;
@@ -423,22 +419,45 @@ const contactsBookInit = (() => {
 			) {
 				input.name = "phonef";
 				input.type = "phone";
+				input.parentNode.append(createInputBtn("remove"));
 			}
 			if (
 				input.parentNode.offsetParent.classList.contains("email-list")
 			) {
 				input.name = "emailf";
 				input.type = "email";
+				input.parentNode.append(createInputBtn("remove"));
 			}
 		}
 
 		e.target.parentNode.removeChild(e.target);
 	});
 
+	function findContact(id) {
+		let data = store.contactsBook;
+		let result = data.find(contact => {
+			return contact.id == id;
+		});
+		return result;
+	}
+
+	const contactPromise = id =>
+		new Promise(resolve => {
+			findContact(id);
+		});
+
 	let cancelContactBtn = listen("click", ".btn-cancel", e => {
 		let card = e.target.offsetParent.parentNode;
 		if (card.classList.contains("new")) {
 			document.getElementById("contacts-grid").removeChild(card);
+		}
+		if (card.classList.contains("edit")) {
+			let cardId = card.getAttribute("data-contactid");
+			let contact = findContact(cardId);
+			let originalCard = createContactCard(contact);
+			document
+				.getElementById("contacts-grid")
+				.replaceChild(originalCard, card);
 		}
 	});
 
@@ -473,10 +492,12 @@ const contactsBookInit = (() => {
 		}
 	});
 
-	let addPhoneNumber = listen("click", ".phone-list .add-i", e => {
-		let val = e.target.parentElement.previousElementSibling.value;
+	let addPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
+		let val = e.target.previousElementSibling.value;
 		if (val !== "") {
 			e.target.offsetParent.prepend(createlistItem("edit", "phone", ""));
+			e.target.parentNode.append(createInputBtn("remove"));
+			e.target.parentNode.removeChild(e.target);
 		} else {
 			inputsErrors.errorPhone = true;
 		}
@@ -487,12 +508,14 @@ const contactsBookInit = (() => {
 		}
 	});
 	let removePhoneNumber = listen("click", ".phone-list .remove-i", e => {
-		e.target.offsetParent.removeChild(e.target.parentElement.parentElement);
+		e.target.offsetParent.removeChild(e.target.parentElement);
 	});
 	let addEmailAddress = listen("click", ".email-list .add-i", e => {
-		let val = e.target.parentElement.previousElementSibling.value;
+		let val = e.target.previousElementSibling.value;
 		if (val !== "") {
 			e.target.offsetParent.prepend(createlistItem("edit", "email", ""));
+			e.target.parentNode.append(createInputBtn("remove"));
+			e.target.parentNode.removeChild(e.target);
 		} else {
 			inputsErrors.errorEmail = true;
 		}
@@ -504,13 +527,14 @@ const contactsBookInit = (() => {
 	});
 
 	let removeEmailAddress = listen("click", ".email-list .remove-i", e => {
-		e.target.offsetParent.removeChild(e.target.parentElement.parentElement);
+		e.target.offsetParent.removeChild(e.target.parentElement);
 	});
 
 	let saveContact = listen("click", ".btn-save", e => {
 		e.preventDefault();
 		let card = e.target.offsetParent.parentNode;
-		console.log(card, "card");
+		let cardId = card.getAttribute("data-contactid");
+		let edit = false;
 		let nameInput = e.target.offsetParent.getElementsByClassName(
 			"namef"
 		)[0];
@@ -524,23 +548,30 @@ const contactsBookInit = (() => {
 			}
 			return;
 		} else {
-			let contact = createObj(contactProto);
-			let contactImage = createObj(contactImageProto);
-			Object.defineProperties(contact, {
-				id: {
-					value: "0",
-					writable: true
-				},
-				data: {
-					value: [],
-					writable: true
-				}
-			});
+			let contact;
+			let contactImage = {};
+			if (cardId !== null) {
+				contact = findContact(cardId);
+				edit = true;
+			} else {
+				contact = createObj(contactProto);
+				Object.defineProperties(contact, {
+					id: {
+						value: "0",
+						writable: true
+					},
+					data: {
+						value: [],
+						writable: true
+					}
+				});
 
-			if (store.contactsBook !== null) {
-				contact.id = store.contactsBook.length;
+				if (store.contactsBook !== null) {
+					contact.id = store.contactsBook.length;
+				}
 			}
 
+			contactImage = createObj(contactImageProto);
 			Object.defineProperties(contactImage, {
 				name: {
 					value: "",
@@ -548,7 +579,10 @@ const contactsBookInit = (() => {
 				},
 				phones: { value: [], writable: true },
 				emails: { value: [], writable: true },
-				timestamp: { value: new Date().toISOString(), writable: false }
+				timestamp: {
+					value: new Date().toISOString(),
+					writable: false
+				}
 			});
 
 			let form = e.target.parentElement.parentElement.parentElement;
@@ -578,16 +612,17 @@ const contactsBookInit = (() => {
 				form.getElementsByClassName("btn-group")[0]
 			);
 			nameInput.parentNode.append(createBtnGroup());
-			contact.data.push(contactImage);
-			store.contactsBook.push(contact);
+			contact.data.unshift(contactImage);
+			if (!edit) {
+				store.contactsBook.unshift(contact);
+			}
 			store.save();
 			let welcome = form.parentNode.getElementsByClassName("welcome")[0];
-			form.parentNode.removeChild(welcome);
-			form.parentNode.prepend(createContactCard(contact));
-			form.parentNode.prepend(
-				createWelcomeLine(store.contactsBook.length)
+			form.parentNode.replaceChild(
+				createWelcomeLine(store.contactsBook.length),
+				welcome
 			);
-			form.parentNode.removeChild(form);
+			form.parentNode.replaceChild(createContactCard(contact), form);
 		}
 	});
 })();
