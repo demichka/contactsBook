@@ -492,7 +492,10 @@ const contactsBookInit = (() => {
 		let cardId = card.getAttribute("data-contactid");
 		deleteContact(cardId);
 		grid.removeChild(card);
-		if (store.contactsBook.length === 0) {
+		if (
+			store.contactsBook.length === 0 &&
+			document.getElementsByClassName("new").length === 0
+		) {
 			grid.append(createContactCard());
 		}
 		updateGridHeading(store.contactsBook.length);
