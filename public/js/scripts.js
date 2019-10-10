@@ -102,6 +102,7 @@ const contactsBookInit = (() => {
 		footer.append(p);
 	})();
 
+	//create diffent types buttons to add, edit, remove contacts or reset form and cancel editing
 	const createBtn = action => {
 		let btn = document.createElement("button");
 		btn.classList.add("btn", `btn-${action}`);
@@ -134,7 +135,7 @@ const contactsBookInit = (() => {
 		return btn;
 	};
 
-	//create buttons to edit or remove contact card
+	//create button groupss to edit or remove contact card
 	const createBtnGroup = type => {
 		let btnGroup, btnSave, btnEdit, btnRemove, btnCancel;
 		btnGroup = createDiv("btn-group");
@@ -240,6 +241,7 @@ const contactsBookInit = (() => {
 		return listItem;
 	};
 
+	//create error message if invalid input
 	const createErrorMsg = (type, messageText) => {
 		let message = createDiv([type, "errorMsg"]);
 		message.innerHTML = messageText;
@@ -258,22 +260,33 @@ const contactsBookInit = (() => {
 	};
 
 	//create heading with info if contacts book contains contacts or not and suggestion to add new one
-	const createWelcomeLine = data => {
-		let welcome = createDiv("welcome");
-		let welcomeP = document.createElement("h2");
-		let btnAdd = createBtnAddContact();
-		if (!data) {
-			welcomeP.innerHTML =
-				"Your contacts Book is empty. Add contacts, please.";
-			welcome.innerHTML += welcomeP.outerHTML;
-		} else {
-			welcomeP.innerHTML = `Contacts Book contains ${data} contacts`;
-			welcome.innerHTML += welcomeP.outerHTML + btnAdd.outerHTML;
-		}
-		document.getElementById("contacts-grid").append(welcome);
 
-		return welcome;
-	};
+	const [createGridHeading, updateGridHeading] = (() => {
+		const createGridHeading = data => {
+			let welcome = createDiv("welcome");
+			welcome.id = "grid-heading";
+			let welcomeP = document.createElement("h2");
+			let btnAdd = createBtn("edit");
+			btnAdd.title = "Add contact";
+			btnAdd.innerHTML = "Add contact";
+			if (!data) {
+				welcomeP.innerHTML =
+					"Your contacts Book is empty. Add contacts, please.";
+				welcome.innerHTML += welcomeP.outerHTML;
+			} else {
+				welcomeP.innerHTML = `Contacts Book contains ${data} contacts`;
+				welcome.innerHTML += welcomeP.outerHTML + btnAdd.outerHTML;
+			}
+			return welcome;
+		};
+
+		const updateGridHeading = data => {
+			let oldWelcome = document.getElementById("grid-heading");
+			let newWelcome = createGridHeading(data);
+			grid.replaceChild(newWelcome, oldWelcome);
+		};
+		return [createGridHeading, updateGridHeading];
+	})();
 
 	const createCardHeading = text => {
 		let cardHeading = document.createElement("h3");
@@ -333,6 +346,45 @@ const contactsBookInit = (() => {
 		return card;
 	};
 
+	const findContact = id => {
+		let data = store.contactsBook;
+		let result = data.find(contact => {
+			return contact.id == id;
+		});
+		return result;
+	};
+
+	const deleteContact = id => {
+		let cardToDelete = findContact(id);
+		let i = store.contactsBook.indexOf(cardToDelete);
+		store.contactsBook.splice(i, 1);
+		store.save();
+	};
+
+	const saveContact = (contact, contactImage, mode) => {
+		contact.data.unshift(contactImage);
+		if (!mode) {
+			store.contactsBook.unshift(contact);
+		}
+	};
+
+	const grid = document.getElementById("contacts-grid");
+
+	if (store.contactsBook.length > 0) {
+		grid.append(createGridHeading(store.contactsBook.length));
+		store.contactsBook
+			.map(item => {
+				let card = createContactCard(item);
+				return (grid.innerHTML += card.outerHTML);
+			})
+			.join("\n");
+	} else {
+		grid.append(createGridHeading());
+		let card = createContactCard();
+		card.classList.add("new");
+		grid.append(card);
+	}
+
 	//events handling
 
 	const [listen, unlisten] = (() => {
@@ -364,23 +416,7 @@ const contactsBookInit = (() => {
 		return [listen, unlisten];
 	})();
 
-	let grid = document.getElementById("contacts-grid");
-	if (store.contactsBook.length > 0) {
-		grid.append(createWelcomeLine(store.contactsBook.length));
-		store.contactsBook
-			.map(item => {
-				let card = createContactCard(item);
-				return (grid.innerHTML += card.outerHTML);
-			})
-			.join("\n");
-	} else {
-		createWelcomeLine();
-		let card = createContactCard();
-		card.classList.add("edit", "new");
-		grid.append(card);
-	}
-
-	let addContactBtn = listen("click", ".welcome .btn-edit", e => {
+	const onAddContactBtn = listen("click", ".welcome .btn-edit", e => {
 		if (document.getElementsByClassName("new").length === 0) {
 			e.target.offsetParent.insertBefore(
 				createContactCard(),
@@ -389,7 +425,7 @@ const contactsBookInit = (() => {
 		}
 	});
 
-	let editContactBtn = listen("click", ".read .btn-edit", e => {
+	const onEditContactBtn = listen("click", ".read .btn-edit", e => {
 		e.preventDefault();
 		let card, links, input, phoneList, emailList, name, nameInput;
 		card = e.target.offsetParent.parentNode;
@@ -433,23 +469,13 @@ const contactsBookInit = (() => {
 		e.target.parentNode.removeChild(e.target);
 	});
 
-	function findContact(id) {
-		let data = store.contactsBook;
-		let result = data.find(contact => {
-			return contact.id == id;
-		});
-		return result;
-	}
-
-	const contactPromise = id =>
-		new Promise(resolve => {
-			findContact(id);
-		});
-
-	let cancelContactBtn = listen("click", ".btn-cancel", e => {
+	const onCancelContactBtn = listen("click", ".btn-cancel", e => {
 		let card = e.target.offsetParent.parentNode;
-		if (card.classList.contains("new")) {
-			document.getElementById("contacts-grid").removeChild(card);
+		if (
+			card.classList.contains("new") &&
+			grid.getElementsByClassName("contact-card").length > 1
+		) {
+			grid.removeChild(card);
 		}
 		if (card.classList.contains("edit")) {
 			let cardId = card.getAttribute("data-contactid");
@@ -459,6 +485,17 @@ const contactsBookInit = (() => {
 				.getElementById("contacts-grid")
 				.replaceChild(originalCard, card);
 		}
+	});
+
+	const onRemoveContactBtn = listen("click", ".btn-remove", e => {
+		let card = e.target.offsetParent.parentNode;
+		let cardId = card.getAttribute("data-contactid");
+		deleteContact(cardId);
+		grid.removeChild(card);
+		if (store.contactsBook.length === 0) {
+			grid.append(createContactCard());
+		}
+		updateGridHeading(store.contactsBook.length);
 	});
 
 	const removeError = listen("keyup", ".control", e => {
@@ -492,30 +529,40 @@ const contactsBookInit = (() => {
 		}
 	});
 
-	let addPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
-		let val = e.target.previousElementSibling.value;
-		if (val !== "") {
-			e.target.offsetParent.prepend(createlistItem("edit", "phone", ""));
-			e.target.parentNode.append(createInputBtn("remove"));
-			e.target.parentNode.removeChild(e.target);
-		} else {
-			inputsErrors.errorPhone = true;
+	const onAddPhoneNumber = listen(
+		"click",
+		".phone-list .inputBtn.add-i",
+		e => {
+			let val = e.target.previousElementSibling.value;
+			if (val !== "") {
+				e.target.offsetParent.prepend(
+					createlistItem("edit", "phone", "")
+				);
+				e.target.parentNode.replaceChild(
+					createInputBtn("remove"),
+					e.target
+				);
+			} else {
+				inputsErrors.errorPhone = true;
+			}
+			if (inputsErrors.errorPhone) {
+				e.target.offsetParent.append(
+					createErrorMsg("error-phone", "Enter number")
+				);
+			}
 		}
-		if (inputsErrors.errorPhone) {
-			e.target.offsetParent.append(
-				createErrorMsg("error-phone", "Enter number")
-			);
-		}
-	});
-	let removePhoneNumber = listen("click", ".phone-list .remove-i", e => {
+	);
+	let onRemovePhoneNumber = listen("click", ".phone-list .remove-i", e => {
 		e.target.offsetParent.removeChild(e.target.parentElement);
 	});
 	let addEmailAddress = listen("click", ".email-list .add-i", e => {
 		let val = e.target.previousElementSibling.value;
 		if (val !== "") {
 			e.target.offsetParent.prepend(createlistItem("edit", "email", ""));
-			e.target.parentNode.append(createInputBtn("remove"));
-			e.target.parentNode.removeChild(e.target);
+			e.target.parentNode.replaceChild(
+				createInputBtn("remove"),
+				e.target
+			);
 		} else {
 			inputsErrors.errorEmail = true;
 		}
@@ -526,11 +573,11 @@ const contactsBookInit = (() => {
 		}
 	});
 
-	let removeEmailAddress = listen("click", ".email-list .remove-i", e => {
+	const onRemoveEmailAddress = listen("click", ".email-list .remove-i", e => {
 		e.target.offsetParent.removeChild(e.target.parentElement);
 	});
 
-	let saveContact = listen("click", ".btn-save", e => {
+	const onSaveContact = listen("click", ".btn-save", e => {
 		e.preventDefault();
 		let card = e.target.offsetParent.parentNode;
 		let cardId = card.getAttribute("data-contactid");
@@ -604,24 +651,9 @@ const contactsBookInit = (() => {
 			}
 
 			contactImage.name = nameInput.value;
-			nameInput.parentNode.insertBefore(
-				createCardHeading(nameInput.value),
-				nameInput
-			);
-			nameInput.parentNode.removeChild(
-				form.getElementsByClassName("btn-group")[0]
-			);
-			nameInput.parentNode.append(createBtnGroup());
-			contact.data.unshift(contactImage);
-			if (!edit) {
-				store.contactsBook.unshift(contact);
-			}
+			saveContact(contact, contactImage, edit);
 			store.save();
-			let welcome = form.parentNode.getElementsByClassName("welcome")[0];
-			form.parentNode.replaceChild(
-				createWelcomeLine(store.contactsBook.length),
-				welcome
-			);
+			updateGridHeading(store.contactsBook.length);
 			form.parentNode.replaceChild(createContactCard(contact), form);
 		}
 	});
