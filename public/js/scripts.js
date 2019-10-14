@@ -60,16 +60,74 @@ const contactsBookInit = (() => {
 		return div;
 	};
 
+	const createGridPage = () => {
+		let grid = createDiv("col-10");
+		grid.id = "contacts-grid";
+		return grid;
+	};
+
+	const createDetailsPage = () => {
+		let details = createDiv("col-10");
+		details.id = "details";
+		let detailsHeading = createDiv("welcome");
+		let heading = document.createElement("h2");
+		heading.innerHTML = "Contact's details and history";
+		let linkBack = document.createElement("a");
+		linkBack.classList.add("link-back");
+		linkBack.innerHTML = "Back to contacts";
+		linkBack.title = "Go back to all contacts";
+		linkBack.href = "/";
+		let icon = document.createElement("i");
+		icon.classList.add("icofont-long-arrow-left");
+		linkBack.prepend(icon);
+		detailsHeading.innerHTML += heading.outerHTML + linkBack.outerHTML;
+		details.append(detailsHeading);
+		return details;
+	};
+
+	const grid = createGridPage();
+	const details = createDetailsPage();
+
+	const routes = {
+		"/": grid,
+		"/details": details
+	};
+
+	const content = (() => {
+		let content = createDiv(["row", "no-gutters", "items-center"]);
+		content.id = "root";
+		content.append(routes[window.location.pathname]);
+		return content;
+	})();
+
+	const onNavigate = path => {
+		let currentPage = content.childNodes[0];
+
+		window.history.pushState({}, path, window.location.origin + path);
+
+		content.replaceChild(routes[path], currentPage);
+	};
+
+	window.onpopstate = () => {
+		let currentPage = content.childNodes[0];
+
+		content.replaceChild(routes[window.location.pathname], currentPage);
+	};
+
 	//Create header
 	(() => {
-		let containerFluid, row, headerH1;
+		let containerFluid, row, headerH1, a;
 		containerFluid = createDiv("container-fluid");
 		row = createDiv("row");
 		containerFluid.append(row);
 		header = document.createElement("header");
 		headerH1 = document.createElement("h1");
+		a = document.createElement("a");
+		a.href = "/";
+		a.title = "Contacts Book";
+		a.innerHTML = "Contacts Book";
 		headerH1.classList.add("col-12");
-		headerH1.innerHTML = "Contacts book";
+		headerH1.innerHTML += a.outerHTML;
 
 		row.append(headerH1);
 		header.append(containerFluid);
@@ -77,17 +135,13 @@ const contactsBookInit = (() => {
 
 	//Create main with containers and rows, columns inside
 	(() => {
-		let container, row, col_11, row_nogutters, col_10;
+		let container, row, col_11;
 		container = createDiv("container");
 		row = createDiv(["row", "items-center", "wrap"]);
 		container.append(row);
 		col_11 = createDiv("col-11");
 		row.append(col_11);
-		row_nogutters = createDiv(["row", "no-gutters", "items-center"]);
-		col_10 = createDiv("col-10");
-		col_10.id = "contacts-grid";
-		row_nogutters.append(col_10);
-		col_11.append(row_nogutters);
+		col_11.append(content);
 		main = document.createElement("main");
 		main.classList.add("container-fluid");
 		main.append(container);
@@ -131,13 +185,20 @@ const contactsBookInit = (() => {
 			btn.innerHTML = "Reset";
 			btn.type = "reset";
 		}
+		if (action === "history") {
+			let a = document.createElement("a");
+			a.title = "Show contact's history";
+			a.innerHTML = "History";
+			btn.append(a);
+			btn.type = "button";
+		}
 
 		return btn;
 	};
 
 	//create button groupss to edit or remove contact card
 	const createBtnGroup = type => {
-		let btnGroup, btnSave, btnEdit, btnRemove, btnCancel;
+		let btnGroup, btnSave, btnEdit, btnHistory, btnRemove, btnCancel;
 		btnGroup = createDiv("btn-group");
 		if (type === "new") {
 			btnSave = createBtn("save");
@@ -148,11 +209,13 @@ const contactsBookInit = (() => {
 		} else {
 			btnSave = createBtn("save");
 			btnEdit = createBtn("edit");
+			btnHistory = createBtn("history");
 			btnRemove = createBtn("remove");
 			btnCancel = createBtn("cancel");
 			btnGroup.innerHTML +=
 				btnSave.outerHTML +
 				btnEdit.outerHTML +
+				btnHistory.outerHTML +
 				btnRemove.outerHTML +
 				btnCancel.outerHTML;
 		}
@@ -312,7 +375,7 @@ const contactsBookInit = (() => {
 
 		if (contact) {
 			card.classList.add("read");
-			card.setAttribute("data-contactId", contact.id);
+			card.setAttribute("data-contactID", contact.id);
 			let lastImage = contact.data[0];
 			cardHeading = createCardHeading(lastImage.name);
 			cardTop.innerHTML +=
@@ -368,7 +431,7 @@ const contactsBookInit = (() => {
 		}
 	};
 
-	const grid = document.getElementById("contacts-grid");
+	// const grid = document.getElementById("contacts-grid");
 
 	if (store.contactsBook.length > 0) {
 		grid.append(createGridHeading(store.contactsBook.length));
@@ -425,6 +488,78 @@ const contactsBookInit = (() => {
 		}
 	});
 
+	const createUndoRedoIcons = action => {
+		let icon;
+		icon = document.createElement("i");
+
+		if (action === "undo") {
+			icon.classList.add("icofont-undo");
+		}
+		if (action === "redo") {
+			icon.classList.add("icofont-redo");
+		}
+		return icon;
+	};
+
+	const createHistoryList = item => {
+		let list, a, contact;
+		contact = {};
+		console.log(item, "item from list");
+		contact = { ...item };
+		list = document.createElement("ol");
+		list.reversed = "true";
+		list.classList.add("history-list", "col-11");
+
+		for (let i = 0; i < contact.data.length; i++) {
+			let listItem = document.createElement("li");
+			let timestamp = contact.data[i].timestamp.slice(0, 19);
+			let span = document.createElement("span");
+			span.innerHTML += timestamp.replace("T", " at ");
+			listItem.innerHTML +=
+				span.outerHTML + createUndoRedoIcons("undo").outerHTML;
+			listItem.title = "Restore to this version";
+			list.append(listItem);
+		}
+
+		return list;
+	};
+
+	const detailsContent = item => {
+		let content, heading, card, historySection, list, col;
+		content = document.createElement("div");
+		card = createContactCard(item);
+		console.log(item, "from detailsContent");
+		historySection = createDiv([
+			"contact-history",
+			"row",
+			"no-gutters",
+			"items-center",
+			"history-card"
+		]);
+		col = createDiv(["col-12", "history-heading"]);
+		heading = document.createElement("h3");
+		heading.innerHTML = "Contact history";
+		col.append(heading);
+		col.classList.add("history-card");
+		list = createHistoryList(item);
+		historySection.innerHTML += list.outerHTML;
+		content.innerHTML +=
+			card.outerHTML + col.outerHTML + historySection.outerHTML;
+		return content;
+	};
+
+	const onHistoryBtn = listen("click", ".btn-history", e => {
+		let card = e.target.offsetParent.parentNode;
+		let cardID = card.getAttribute("data-contactID");
+		onNavigate("/details");
+		details.setAttribute("data-contactID", cardID);
+		let contact = findContact(cardID);
+
+		details.innerHTML += detailsContent(contact).outerHTML;
+
+		return false;
+	});
+
 	const onEditContactBtn = listen("click", ".read .btn-edit", e => {
 		e.preventDefault();
 		let card, links, input, phoneList, emailList, name, nameInput;
@@ -478,7 +613,8 @@ const contactsBookInit = (() => {
 			grid.removeChild(card);
 		}
 		if (card.classList.contains("edit")) {
-			let cardId = card.getAttribute("data-contactid");
+			let cardId = card.getAttribute("data-contactID");
+			console.log(cardId);
 			let contact = findContact(cardId);
 			let originalCard = createContactCard(contact);
 			document
@@ -489,7 +625,7 @@ const contactsBookInit = (() => {
 
 	const onRemoveContactBtn = listen("click", ".btn-remove", e => {
 		let card = e.target.offsetParent.parentNode;
-		let cardId = card.getAttribute("data-contactid");
+		let cardId = card.getAttribute("data-contactID");
 		deleteContact(cardId);
 		grid.removeChild(card);
 		if (
@@ -583,7 +719,7 @@ const contactsBookInit = (() => {
 	const onSaveContact = listen("click", ".btn-save", e => {
 		e.preventDefault();
 		let card = e.target.offsetParent.parentNode;
-		let cardId = card.getAttribute("data-contactid");
+		let cardId = card.getAttribute("data-contactID");
 		let edit = false;
 		let nameInput = e.target.offsetParent.getElementsByClassName(
 			"namef"
