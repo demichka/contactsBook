@@ -2,21 +2,34 @@ function contactsBookInit() {
 	this.store = {
 		contactsBook: []
 	};
-	let store = this.store;
+
+	this.currentContact = {
+		id: "",
+		comments: []
+	};
+
+	console.log(this.currentContact);
+
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs
 
 	try {
-		store.contactsBook = JSON.parse(window.localStorage.contactsBook);
+		this.store.contactsBook = JSON.parse(window.localStorage.contactsBook);
 	} catch (e) {
-		store = {
+		this.store = {
 			contactsBook: []
 		};
 	}
 
-	console.log(store, "store");
+	console.log(this.store, "store");
 
-	store.save = () => {
-		window.localStorage.contactsBook = JSON.stringify(store.contactsBook);
+	this.store.savePrevState = () => {
+		this.store.prevState = [...this.store.contactsBook];
+	};
+
+	this.store.save = () => {
+		window.localStorage.contactsBook = JSON.stringify(
+			this.store.contactsBook
+		);
 	};
 
 	//create basic markup
@@ -120,9 +133,9 @@ function contactsBookInit() {
 	document.body.append(main);
 	document.body.append(footer);
 
-	if (store.contactsBook.length > 0) {
-		grid.append(createGridHeading(store.contactsBook.length));
-		store.contactsBook
+	if (this.store.contactsBook.length > 0) {
+		grid.append(createGridHeading(this.store.contactsBook.length));
+		this.store.contactsBook
 			.map(item => {
 				let card = createContactCard(item);
 				return (grid.innerHTML += card.outerHTML);
@@ -136,4 +149,4 @@ function contactsBookInit() {
 	}
 }
 
-const contactsBookObj = new contactsBookInit();
+const App = new contactsBookInit();

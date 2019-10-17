@@ -108,12 +108,15 @@ const createlistItem = (mode, type, val) => {
 		valueInput = document.createElement("input");
 		valueInput.setAttribute("value", val);
 		valueInput.classList.add("control");
+		if (val === "") {
+			valueInput.setAttribute("data-added", true);
+		}
 		if (type === "phone") {
 			icon.classList.add("icofont-mobile-phone");
 			valueInput.classList.add("control", "phonef");
 			valueInput.placeholder = "Enter phone number";
 			valueInput.maxLength = "11";
-			valueInput.type = "phone";
+			valueInput.type = "tel";
 			valueInput.name = "phonef";
 		}
 		if (type === "email") {
@@ -125,10 +128,14 @@ const createlistItem = (mode, type, val) => {
 			valueInput.type = "email";
 		}
 
-		listItem.innerHTML +=
-			icon.outerHTML +
-			valueInput.outerHTML +
-			createInputBtn("add").outerHTML;
+		listItem.innerHTML += icon.outerHTML + valueInput.outerHTML;
+
+		if (valueInput.value === "") {
+			listItem.append(createInputBtn("add"));
+			valueInput.setAttribute("data-added", true);
+		} else {
+			listItem.append(createInputBtn("remove"));
+		}
 	}
 	if (mode === "read") {
 		valueLink = document.createElement("a");
@@ -278,7 +285,6 @@ const detailsContent = item => {
 	let content, heading, card, historySection, list, col;
 	content = document.createElement("div");
 	card = createContactCard(item);
-	console.log(item, "from detailsContent");
 	historySection = createDiv([
 		"contact-history",
 		"row",
@@ -306,22 +312,30 @@ const createHistoryList = item => {
 	list.reversed = "true";
 	list.classList.add("history-list", "col-11");
 
-	if (contact.history.length > 1) {
-		for (let i = 0; i < contact.history.length; i++) {
-			let listItem = document.createElement("li");
-			let timestamp = contact.history[i].timestamp.slice(0, 19);
-			let span = document.createElement("span");
-			span.innerHTML += timestamp.replace("T", " at ");
-			listItem.innerHTML +=
-				span.outerHTML + createUndoRedoIcons("undo").outerHTML;
-			listItem.title = "Restore to this version";
-			list.append(listItem);
+	for (let i = 0; i < contact.history.length; i++) {
+		let listItem = document.createElement("li");
+		let timestamp = contact.history[i].timestamp.slice(0, 19);
+		let restoreBtn = document.createElement("div");
+		restoreBtn.classList.add("restore-btn");
+		let span = document.createElement("span");
+		span.innerHTML += timestamp.replace("T", " at ");
+		restoreBtn.title = "Restore to this version";
+		let textDiv = document.createElement("div");
+		textDiv.innerHTML += "Restore " + createUndoRedoIcons("undo").outerHTML;
+		restoreBtn.innerHTML += span.outerHTML + textDiv.outerHTML;
+		let comments = document.createElement("ul");
+		for (let item in contact.history[i].comments) {
+			let li = document.createElement("li");
+			li.innerHTML = contact.history[i].comments[item];
+			comments.append(li);
 		}
-	} else {
-		let noHistory = document.createElement("p");
-		noHistory.innerHTML = "The contact has no previous versions";
-		return noHistory;
+		listItem.innerHTML += restoreBtn.outerHTML + comments.outerHTML;
+		list.append(listItem);
 	}
 
 	return list;
+};
+
+const updateHistoryList = item => {
+	return createHistoryList(item);
 };

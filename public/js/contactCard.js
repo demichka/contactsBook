@@ -8,7 +8,7 @@ ContactCard.prototype.newImage = function() {
 };
 
 ContactCard.prototype.addImage = function(image) {
-	this.history.unshift(image);
+	this.history = [image, ...this.history];
 };
 
 function ContactCardImage() {
@@ -16,16 +16,21 @@ function ContactCardImage() {
 	this.phones = [];
 	this.emails = [];
 	this.timestamp = new Date().toISOString();
+	this.comments = [];
 }
 
 ContactCardImage.prototype.addPhone = function(phone) {
-	this.phones.push(phone);
+	this.phones = [...this.phones, phone];
 };
 
 ContactCardImage.prototype.addEmail = function(email) {
-	this.emails.push(email);
+	this.emails = [...this.emails, email];
 };
 
 ContactCardImage.prototype.addName = function(name) {
 	this.name = name;
+};
+
+ContactCardImage.prototype.addComments = function(comment) {
+	this.comments = [...this.comments, comment];
 };

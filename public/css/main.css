@@ -609,26 +609,49 @@ i[class^="icofont"] {
 
 .history-list {
   padding-left: 0;
-  list-style-position: inside;
-  column-count: 2;
-  column-span: all;
+  list-style-type: none;
 }
 
-.history-list li {
-  cursor: pointer;
+.history-list>li {
   margin-bottom: 1rem;
-  color: #641919;
+  border: 1px solid #785054;
 }
+
+.history-list li>ul {
+  padding-left: 15px;
+  margin: 15px 0;
+  list-style-position: inside;
+  list-style-type: square;
+  columns: 2;
+}
+
+.history-list li>ul>li {
+  margin-bottom: 10px;
+}
+
+.restore-btn {
+  display: block;
+  background-color: #785054;
+  border: 1px solid #785054;
+  transition: all .3s ease-in-out;
+  padding: 5px 15px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.restore-btn:hover {
+  background-color: #6B3F43;
+}
+
+
 
 .history-list li i[class^="icofont"] {
   font-size: 1rem;
   margin-left: 5px;
 }
 
-.history-list li:hover span,
-.history-list li:hover i {
-  color: #b62d2e;
-}
 
 .link-back {
   display: block;

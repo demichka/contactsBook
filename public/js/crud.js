@@ -1,5 +1,5 @@
 const findContact = id => {
-	let data = contactsBookObj.store.contactsBook;
+	let data = App.store.contactsBook;
 	let contact = new ContactCard("");
 	let result = data.find(contact => {
 		return contact.id == id;
@@ -11,21 +11,19 @@ const findContact = id => {
 };
 
 const deleteContact = id => {
-	let i = contactsBookObj.store.contactsBook.findIndex(item => item.id == id);
-	contactsBookObj.store.contactsBook.splice(i, 1);
-	contactsBookObj.store.save();
+	let i = App.store.contactsBook.findIndex(item => item.id == id);
+	App.store.contactsBook.splice(i, 1);
+	App.store.save();
 };
 
 const saveContact = (contact, contactImage, mode) => {
 	contact.data.unshift(contactImage);
 	if (!mode) {
-		contactsBookObj.store.contactsBook.unshift(contact);
+		App.store.contactsBook.unshift(contact);
 	}
 };
 
 const updateContact = contact => {
-	let card = contactsBookObj.store.contactsBook.findIndex(
-		item => item.id == contact.id
-	);
-	contactsBookObj.store.contactsBook[card] = contact;
+	let card = App.store.contactsBook.findIndex(item => item.id == contact.id);
+	App.store.contactsBook[card] = contact;
 };
