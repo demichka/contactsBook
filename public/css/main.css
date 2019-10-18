@@ -616,7 +616,9 @@ i[class^="icofont"] {
 }
 
 .history-heading h3 {
-  padding: 0 20px;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .history-list {
@@ -628,6 +630,8 @@ i[class^="icofont"] {
   margin-bottom: 1rem;
   border: 1px solid #785054;
 }
+
+
 
 .history-list li>ul {
   padding-left: 15px;
@@ -642,20 +646,46 @@ i[class^="icofont"] {
   font-size: .875rem;
 }
 
-.restore-btn {
+.history-list>li>.history-element-heading {
   display: block;
   background-color: #785054;
   border: 1px solid #785054;
   transition: all .3s ease-in-out;
   padding: 5px 15px;
   color: #fff;
-  cursor: pointer;
   display: flex;
   justify-content: space-between;
 }
 
-.restore-btn:hover {
+.history-list>li>.history-element-heading:hover {
   background-color: #6B3F43;
+}
+
+.restore-btn {
+  cursor: pointer;
+}
+
+.history-list>li.current {
+  border: 1px solid #82a42e;
+
+}
+
+.history-list>li .current-indicator {
+  display: none;
+}
+
+.history-list>li.current .restore-btn {
+  display: none;
+}
+
+.history-list>li.current .current-indicator {
+  display: block;
+  cursor: default;
+}
+
+.history-list>li.current>.history-element-heading {
+  background-color: #82a42e;
+  border: 1px solid #82a42e;
 }
 
 
@@ -673,4 +703,26 @@ i[class^="icofont"] {
 
 .link-back i {
   vertical-align: bottom;
+}
+
+.undo-redo-btns {
+  display: flex;
+}
+
+.undo-redo-btns>button {
+  cursor: pointer;
+  padding: 5px 7px;
+  text-align: center;
+  margin-right: 5px;
+  color: #F7F7FF;
+  background-color: #6B3F43;
+  border: 1px solid #6B3F43;
+  font-size: .875rem;
+}
+
+.undo-redo-btns>button[disabled] {
+  background-color: #BBA7A9;
+  border: 1px solid #BBA7A9;
+  cursor: default;
+  pointer-events: none;
 }

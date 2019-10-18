@@ -253,17 +253,21 @@ const createViewContactCard = contact => {
 	const card = createCardElement();
 	card.classList.add("read");
 	card.setAttribute("data-contactID", contact.id);
-	let lastImage = contact.history[0];
-	const cardHeading = createCardHeading(lastImage.name);
+	let currentVersion = contact.history[contact.currentVersion];
+	const cardHeading = createCardHeading(currentVersion.name);
 	card.querySelector(".contact-card-heading").innerHTML +=
 		cardHeading.outerHTML + createBtnGroup().outerHTML;
-	if (lastImage.phones) {
-		card.querySelector(".phone-list").innerHTML += lastImage.phones
+	if (currentVersion.phones) {
+		card.querySelector(
+			".phone-list"
+		).innerHTML += currentVersion.phones
 			.map(phone => createlistItem("read", "phone", phone).outerHTML)
 			.join("\n");
 	}
-	if (lastImage.emails) {
-		card.querySelector(".email-list").innerHTML += lastImage.emails
+	if (currentVersion.emails) {
+		card.querySelector(
+			".email-list"
+		).innerHTML += currentVersion.emails
 			.map(email => createlistItem("read", "email", email).outerHTML)
 			.join("\n");
 	}
@@ -295,7 +299,7 @@ const createEmptyContactCard = () => {
 };
 
 const createEditContactCard = contact => {
-	const currentState = contact.history[0];
+	const currentState = contact.history[contact.currentVersion];
 	const card = createCardElement();
 	card.classList.add("edit");
 	card.setAttribute("data-contactID", contact.id);
@@ -376,7 +380,10 @@ const detailsContent = item => {
 	]);
 	col = createDiv(["col-12", "history-heading"]);
 	heading = document.createElement("h3");
-	heading.innerHTML = "Contact history";
+	let span = document.createElement("span");
+	span.innerHTML = "Contact history";
+	heading.innerHTML += span.outerHTML + createUndoRedoBtns().outerHTML;
+
 	col.append(heading);
 	col.classList.add("history-card");
 	list = createHistoryList(item);
@@ -387,7 +394,7 @@ const detailsContent = item => {
 };
 
 const createHistoryList = item => {
-	let list, a, contact;
+	let list, contact;
 	contact = {};
 	contact = { ...item };
 	list = document.createElement("ol");
@@ -396,22 +403,34 @@ const createHistoryList = item => {
 
 	for (let i = 0; i < contact.history.length; i++) {
 		let listItem = document.createElement("li");
+		listItem.setAttribute("data-version", i);
 		let timestamp = contact.history[i].timestamp.slice(0, 19);
-		let restoreBtn = document.createElement("div");
-		restoreBtn.classList.add("restore-btn");
+		let elHeading = document.createElement("div");
+		elHeading.classList.add("history-element-heading");
 		let span = document.createElement("span");
 		span.innerHTML += timestamp.replace("T", " at ");
+		let restoreBtn = document.createElement("div");
+		restoreBtn.classList.add("restore-btn");
 		restoreBtn.title = "Restore to this version";
-		let textDiv = document.createElement("div");
-		textDiv.innerHTML += "Restore " + createUndoRedoIcons("undo").outerHTML;
-		restoreBtn.innerHTML += span.outerHTML + textDiv.outerHTML;
+		restoreBtn.setAttribute("data-version", i);
+		let currentSpan = document.createElement("span");
+		currentSpan.classList.add("current-indicator");
+		currentSpan.innerHTML = "Current version";
+
+		restoreBtn.innerHTML +=
+			"Restore " + createUndoRedoIcons("undo").outerHTML;
+		elHeading.innerHTML +=
+			span.outerHTML + currentSpan.outerHTML + restoreBtn.outerHTML;
 		let comments = document.createElement("ul");
 		for (let item in contact.history[i].comments) {
 			let li = document.createElement("li");
 			li.innerHTML = contact.history[i].comments[item];
 			comments.append(li);
 		}
-		listItem.innerHTML += restoreBtn.outerHTML + comments.outerHTML;
+		if (i == parseInt(contact.currentVersion)) {
+			listItem.classList.add("current");
+		}
+		listItem.innerHTML += elHeading.outerHTML + comments.outerHTML;
 		list.append(listItem);
 	}
 
@@ -420,4 +439,25 @@ const createHistoryList = item => {
 
 const updateHistoryList = item => {
 	return createHistoryList(item);
+};
+
+const createUndoRedoBtns = () => {
+	let btnBlock = document.createElement("div");
+	btnBlock.classList.add("undo-redo-btns");
+	let btnUndo = document.createElement("button");
+	btnUndo.classList.add("undo-btn");
+	btnUndo.type = "button";
+	btnUndo.title = "Undo";
+	btnUndo.innerHTML = "Undo";
+	btnUndo.setAttribute("disabled", "disabled");
+	let btnRedo = document.createElement("button");
+	btnRedo.classList.add("redo-btn");
+	btnRedo.type = "button";
+	btnRedo.title = "Redo";
+	btnRedo.innerHTML = "Redo";
+	btnRedo.setAttribute("disabled", "disabled");
+
+	btnBlock.innerHTML += btnUndo.outerHTML + btnRedo.outerHTML;
+
+	return btnBlock;
 };

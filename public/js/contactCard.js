@@ -1,6 +1,7 @@
 function ContactCard(id) {
 	this.id = id;
 	this.history = [];
+	this.currentVersion = 0;
 }
 
 ContactCard.prototype.newImage = function() {

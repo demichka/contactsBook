@@ -37,11 +37,13 @@ const onAddContactBtn = listen("click", ".welcome .btn-edit", e => {
 const onHistoryBtn = listen("click", ".btn-history", e => {
 	const card = e.target.offsetParent.parentNode;
 	let contact = findContact(card.getAttribute("data-contactID"));
+	App.currentContact = { ...contact };
 	navigate("/history/" + contact.id);
 });
 
 const onBackLink = listen("click", ".link-back", e => {
 	e.preventDefault();
+	App.clearCurrentContact();
 	if (document.querySelector(".details-content")) {
 		document
 			.getElementById("details")
@@ -209,6 +211,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		contactImage.addComments(App.currentContact.comments);
 		contactImage.addName(nameInput.value);
 		contact.addImage(contactImage);
+		contact.currentVersion = 0;
 		updateContact(contact);
 
 		if (!edit) {
@@ -220,3 +223,82 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		return;
 	}
 });
+
+const onRestoreBtn = listen("click", ".restore-btn", e => {
+	const version = e.target.getAttribute("data-version");
+	restoreToVersion(version, false);
+	// updateContact({ ...App.currentContact });
+	// App.store.save();
+});
+
+const onUndoBtn = listen("click", ".undo-btn", e => {
+	App.state.historyUndo.count--;
+	App.state.historyRedo.count++;
+	console.log(App.state.historyUndo.count, "count Undo");
+	console.log(App.state.historyRedo.count, "count Redo");
+	document.querySelector(".redo-btn").removeAttribute("disabled");
+
+	restoreToVersion(
+		App.state.historyUndo.versions[App.state.historyUndo.count],
+		true
+	);
+
+	if (App.state.historyUndo.count === 0) {
+		e.target.setAttribute("disabled", "disabled");
+
+		App.state.historyUndo.versions.length = 0;
+	}
+});
+
+const onRedoBtn = listen("click", ".redo-btn", e => {
+	document.querySelector(".redo-btn").removeAttribute("disabled");
+	let v = App.state.historyRedo.count - 1;
+	console.log(App.state.historyRedo.versions[v], v, "version redo");
+	restoreToVersion(App.state.historyRedo.versions[v], true);
+	console.log(App.state.historyRedo.count, "count");
+	App.state.historyRedo.count--;
+
+	if (App.state.historyRedo.count === 0) {
+		e.target.setAttribute("disabled", "disabled");
+		// App.state.historyRedo.versions.length = 0;
+	}
+});
+
+const restoreToVersion = (version, undo) => {
+	if (!undo) {
+		App.state.historyUndo.versions = [
+			...App.state.historyUndo.versions,
+			App.currentContact.currentVersion
+		];
+
+		App.state.historyUndo.count = App.state.historyUndo.versions.length;
+	}
+	if (undo) {
+		App.state.historyRedo.versions = [
+			App.currentContact.currentVersion,
+			...App.state.historyRedo.versions
+		];
+	}
+
+	console.log(App.state);
+	console.log(version, "version after");
+	App.currentContact.currentVersion = parseInt(version);
+	let history = document.querySelectorAll("li");
+	history.forEach(item => {
+		item.classList.remove("current");
+	});
+	document
+		.querySelector(".details-content")
+		.replaceChild(
+			createViewContactCard(App.currentContact),
+			document.querySelector(".contact-card")
+		);
+
+	console.log(version);
+	document
+		.querySelector(`[data-version="${version}"]`)
+		.classList.add("current");
+
+	document.querySelector(".undo-btn").removeAttribute("disabled");
+	return;
+};

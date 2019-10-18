@@ -39,6 +39,17 @@ function contactsBookInit() {
 		this.store.prevState = [...this.store.contactsBook];
 	};
 
+	this.state = {
+		historyUndo: {
+			versions: [],
+			count: 0
+		},
+		historyRedo: {
+			versions: [],
+			count: 0
+		}
+	};
+
 	this.store.save = () => {
 		window.localStorage.contactsBook = JSON.stringify(
 			this.store.contactsBook
@@ -111,13 +122,15 @@ function contactsBookInit() {
 
 	function renderHistory(path) {
 		const id = parseInt(path.split("/")[2]);
+		let history;
 		cleanContent(content);
 
 		const details = createDetails();
 
-		const history = detailsContent(
-			store.contactsBook.find(item => item.id === id)
-		);
+		App.currentContact = {
+			...store.contactsBook.find(item => item.id === id)
+		};
+		history = detailsContent(App.currentContact);
 
 		details.append(history);
 
