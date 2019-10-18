@@ -314,8 +314,20 @@ footer p {
   display: block;
 }
 
+.contact-card.edit .btn-edit {
+  display: none;
+}
+
+.contact-card.edit .btn-history {
+  display: none;
+}
+
 .contact-card.new .btn-cancel {
   display: block;
+}
+
+.details-content .btn-group {
+  display: none;
 }
 
 .contact-card.new dl dd:first-child .inputBtn.add-i {
@@ -626,7 +638,8 @@ i[class^="icofont"] {
 }
 
 .history-list li>ul>li {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: .875rem;
 }
 
 .restore-btn {

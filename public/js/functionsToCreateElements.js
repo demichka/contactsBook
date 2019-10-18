@@ -98,6 +98,12 @@ const createInputBtn = action => {
 	return btn;
 };
 
+const createContactsGrid = () => {
+	let grid = createDiv("col-10");
+	grid.id = "contacts-grid";
+	return grid;
+};
+
 //create contact list item
 const createlistItem = (mode, type, val) => {
 	let listItem, icon, valueLink, valueInput;
@@ -108,6 +114,7 @@ const createlistItem = (mode, type, val) => {
 		valueInput = document.createElement("input");
 		valueInput.setAttribute("value", val);
 		valueInput.classList.add("control");
+		valueInput.setAttribute("autocomplete", "nope");
 		if (val === "") {
 			valueInput.setAttribute("data-added", true);
 		}
@@ -165,13 +172,17 @@ const createErrorMsg = (type, messageText) => {
 };
 
 //create input to enter name on the new contact card
-function createNameInput() {
+function createNameInput(value) {
 	let nameInput = document.createElement("input");
 	nameInput.classList.add("control", "namef");
 	nameInput.type = "text";
 	nameInput.placeholder = "Enter contact's name";
 	nameInput.required = "required";
 	nameInput.name = "namef";
+	nameInput.setAttribute("autocomplete", "nope");
+	if (value) {
+		nameInput.setAttribute("value", value);
+	}
 	return nameInput;
 }
 
@@ -188,6 +199,12 @@ const [createGridHeading, updateGridHeading] = (() => {
 		if (!data) {
 			welcomeP.innerHTML =
 				"Your contacts Book is empty. Add contacts, please.";
+			welcome.innerHTML += welcomeP.outerHTML;
+		} else if (data === "new" && App.store.contactsBook.length) {
+			welcomeP.innerHTML = "Add contact here, please.";
+			welcome.innerHTML += welcomeP.outerHTML;
+		} else if (App.store.contactsBook.length === 0) {
+			welcomeP.innerHTML = `Contacts Book is empty. \n Add contact here, please.`;
 			welcome.innerHTML += welcomeP.outerHTML;
 		} else {
 			welcomeP.innerHTML = `Contacts Book contains ${data} contacts`;
@@ -217,6 +234,7 @@ const createCardHeading = text => {
 function createCardElement() {
 	let card, cardTop, cardBody, phoneList, emailList;
 	card = document.createElement("form");
+	card.setAttribute("autocomplete", "nope");
 	card.classList.add("contact-card");
 	cardTop = createDiv("contact-card-heading");
 	cardBody = createDiv(["contact-card-body", "row"]);
@@ -231,40 +249,83 @@ function createCardElement() {
 }
 
 //create contact-card
-const createContactCard = contact => {
-	let cardHeading;
-	card = createCardElement();
-	if (contact) {
-		card.classList.add("read");
-		card.setAttribute("data-contactID", contact.id);
-		let lastImage = contact.history[0];
-		cardHeading = createCardHeading(lastImage.name);
-		card.querySelector(".contact-card-heading").innerHTML +=
-			cardHeading.outerHTML + createBtnGroup().outerHTML;
-		if (lastImage.phones) {
-			card.querySelector(".phone-list").innerHTML += lastImage.phones
-				.map(phone => createlistItem("read", "phone", phone).outerHTML)
-				.join("\n");
-		}
-		if (lastImage.emails) {
-			card.querySelector(".email-list").innerHTML += lastImage.emails
-				.map(email => createlistItem("read", "email", email).outerHTML)
-				.join("\n");
-		}
-	} else {
-		card.classList.add("new");
-		card.querySelector(".contact-card-heading").append(createNameInput());
-		card.querySelector(".contact-card-heading").innerHTML += createBtnGroup(
-			"new"
-		).outerHTML;
-		card.querySelector(".phone-list").append(
-			createlistItem("edit", "phone", "")
-		);
-		card.querySelector(".email-list").append(
-			createlistItem("edit", "email", "")
+const createViewContactCard = contact => {
+	const card = createCardElement();
+	card.classList.add("read");
+	card.setAttribute("data-contactID", contact.id);
+	let lastImage = contact.history[0];
+	const cardHeading = createCardHeading(lastImage.name);
+	card.querySelector(".contact-card-heading").innerHTML +=
+		cardHeading.outerHTML + createBtnGroup().outerHTML;
+	if (lastImage.phones) {
+		card.querySelector(".phone-list").innerHTML += lastImage.phones
+			.map(phone => createlistItem("read", "phone", phone).outerHTML)
+			.join("\n");
+	}
+	if (lastImage.emails) {
+		card.querySelector(".email-list").innerHTML += lastImage.emails
+			.map(email => createlistItem("read", "email", email).outerHTML)
+			.join("\n");
+	}
+
+	return card;
+};
+
+const createEmptyContactCard = () => {
+	const card = createCardElement();
+	card.classList.add("new");
+	card.querySelector(".contact-card-heading").append(createNameInput());
+	card.querySelector(".contact-card-heading").innerHTML += createBtnGroup(
+		"new"
+	).outerHTML;
+	card.querySelector(".phone-list").append(
+		createlistItem("edit", "phone", "")
+	);
+	card.querySelector(".email-list").append(
+		createlistItem("edit", "email", "")
+	);
+
+	if (!App.store.contactsBook.length) {
+		card.querySelector(".btn-group").removeChild(
+			card.querySelector(".btn-cancel")
 		);
 	}
 
+	return card;
+};
+
+const createEditContactCard = contact => {
+	const currentState = contact.history[0];
+	const card = createCardElement();
+	card.classList.add("edit");
+	card.setAttribute("data-contactID", contact.id);
+
+	card.querySelector(".contact-card-heading").append(
+		createNameInput(currentState.name)
+	);
+	card.querySelector(".contact-card-heading").innerHTML += createBtnGroup(
+		"edit"
+	).outerHTML;
+	card.querySelector(".phone-list").append(
+		createlistItem("edit", "phone", "")
+	);
+	card.querySelector(".email-list").append(
+		createlistItem("edit", "email", "")
+	);
+	if (currentState.phones.length) {
+		for (let item in currentState.phones) {
+			card.querySelector(".phone-list").append(
+				createlistItem("edit", "phone", currentState.phones[item])
+			);
+		}
+	}
+	if (currentState.emails.length) {
+		for (let item in currentState.emails) {
+			card.querySelector(".email-list").append(
+				createlistItem("edit", "email", currentState.emails[item])
+			);
+		}
+	}
 	return card;
 };
 
@@ -281,10 +342,31 @@ const createUndoRedoIcons = action => {
 	return icon;
 };
 
+const createDetails = () => {
+	let details = createDiv("col-10");
+	details.id = "details";
+	let detailsHeading = createDiv("welcome");
+	let heading = document.createElement("h2");
+	heading.innerHTML = "Contact's details and history";
+	let linkBack = document.createElement("a");
+	linkBack.classList.add("link-back");
+	linkBack.innerHTML = "Back to contacts";
+	linkBack.title = "Go back to all contacts";
+	linkBack.href = "/";
+
+	let icon = document.createElement("i");
+	icon.classList.add("icofont-long-arrow-left");
+	linkBack.prepend(icon);
+	detailsHeading.innerHTML += heading.outerHTML + linkBack.outerHTML;
+	details.append(detailsHeading);
+	return details;
+};
+
 const detailsContent = item => {
 	let content, heading, card, historySection, list, col;
 	content = document.createElement("div");
-	card = createContactCard(item);
+	content.classList.add("details-content");
+	card = createViewContactCard(item);
 	historySection = createDiv([
 		"contact-history",
 		"row",

@@ -30,106 +30,41 @@ const [listen, unlisten] = (() => {
 })();
 
 const onAddContactBtn = listen("click", ".welcome .btn-edit", e => {
-	App.store.savePrevState();
-	if (document.getElementsByClassName("new").length === 0) {
-		e.target.offsetParent.insertBefore(
-			createContactCard(),
-			e.target.offsetParent.childNodes[1]
-		);
-	}
+	navigate("/new");
+	return;
 });
 
 const onHistoryBtn = listen("click", ".btn-history", e => {
-	let card = e.target.offsetParent.parentNode;
-	let cardID = card.getAttribute("data-contactID");
-	Router.onNavigate("/details");
-	document.getElementById("details").setAttribute("data-contactID", cardID);
-	let contact = findContact(cardID);
+	const card = e.target.offsetParent.parentNode;
+	let contact = findContact(card.getAttribute("data-contactID"));
+	navigate("/history/" + contact.id);
+});
 
-	document.getElementById("details").innerHTML += detailsContent(
-		contact
-	).outerHTML;
-
-	return false;
+const onBackLink = listen("click", ".link-back", e => {
+	e.preventDefault();
+	if (document.querySelector(".details-content")) {
+		document
+			.getElementById("details")
+			.removeChild(document.querySelector(".details-content"));
+	}
 });
 
 const onEditContactBtn = listen("click", ".read .btn-edit", e => {
 	e.preventDefault();
-	let card, phoneList, emailList, name, nameInput;
-	card = e.target.offsetParent.parentNode;
+	const card = e.target.offsetParent.parentNode;
 	let contact = findContact(card.getAttribute("data-contactID"));
-	App.currentContact = { ...contact.history[0] };
-	App.currentContact.id = contact.id;
-
-	App.currentContact.comments = [];
-	card.classList.add("edit");
-	card.classList.remove("read");
-	name = card.getElementsByTagName("h3")[0];
-	nameInput = createNameInput();
-	nameInput.value = App.currentContact.name;
-
-	name.parentNode.replaceChild(nameInput, name);
-	phoneList = card.getElementsByClassName("phone-list")[0];
-	emailList = card.getElementsByClassName("email-list")[0];
-	links = card.getElementsByClassName("contact-item");
-
-	phoneList.innerHTML = "";
-	emailList.innerHTML = "";
-
-	phoneList.prepend(createlistItem("edit", "phone", ""));
-	emailList.prepend(createlistItem("edit", "email", ""));
-
-	for (let item in App.currentContact.phones) {
-		phoneList.append(
-			createlistItem("edit", "phone", App.currentContact.phones[item])
-		);
-	}
-	for (let item in App.currentContact.emails) {
-		emailList.append(
-			createlistItem("edit", "email", App.currentContact.emails[item])
-		);
-	}
-
-	e.target.parentNode.removeChild(e.target);
+	navigate("/edit/" + contact.id);
 });
 
 const onCancelContactBtn = listen("click", ".btn-cancel", e => {
-	let card = e.target.offsetParent.parentNode;
-	if (
-		card.classList.contains("new") &&
-		document
-			.getElementById("contacts-grid")
-			.getElementsByClassName("contact-card").length > 1
-	) {
-		document.getElementById("contacts-grid").removeChild(card);
-	}
-	if (card.classList.contains("edit")) {
-		let cardId = card.getAttribute("data-contactID");
-		let contact = findContact(cardId);
-		let originalCard = createContactCard(contact);
-		document
-			.getElementById("contacts-grid")
-			.replaceChild(originalCard, card);
-	}
+	navigate("/");
 });
 
 const onRemoveContactBtn = listen("click", ".btn-remove", e => {
 	let card = e.target.offsetParent.parentNode;
-	let grid = document.getElementById("contacts-grid");
 	let cardId = card.getAttribute("data-contactID");
 	deleteContact(cardId);
-	if (grid) {
-		grid.removeChild(card);
-		if (
-			App.store.contactsBook.length === 0 &&
-			document.getElementsByClassName("new").length === 0
-		) {
-			grid.append(createContactCard());
-		}
-		updateGridHeading(App.store.contactsBook.length);
-	} else {
-		window.location = "/";
-	}
+	navigate("/");
 });
 
 const onFocus = listen("focusin", ".control", e => {
@@ -253,14 +188,12 @@ const onSaveContact = listen("click", ".btn-save", e => {
 			}
 		}
 		contactImage = contact.newImage();
-		contactImage.addComments(App.currentContact.comments);
 
 		let form = e.target.parentElement.parentElement.parentElement;
 		let elementList = form.getElementsByClassName("control");
 
 		for (let i = 0; i < elementList.length; i++) {
 			let el = elementList[i];
-
 			if (el.name === "phonef" && el.value !== "") {
 				contactImage.addPhone(el.value);
 				el.previousElementSibling.innerHTML = el.value;
@@ -273,6 +206,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 			}
 		}
 
+		contactImage.addComments(App.currentContact.comments);
 		contactImage.addName(nameInput.value);
 		contact.addImage(contactImage);
 		updateContact(contact);
@@ -280,23 +214,9 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		if (!edit) {
 			App.store.contactsBook = [contact, ...App.store.contactsBook];
 		}
+		App.clearCurrentContact();
 		App.store.save();
-		if (document.getElementById("details")) {
-			let list = updateHistoryList(contact);
-			if (document.querySelector(".history-list")) {
-				document
-					.querySelector(".contact-history")
-					.replaceChild(
-						list,
-						document.querySelector(".history-list")
-					);
-			} else {
-				document
-					.querySelector(".contact-history")
-					.replaceChild(list, document.querySelector("p"));
-			}
-		}
-		updateGridHeading(App.store.contactsBook.length);
-		form.parentNode.replaceChild(createContactCard(contact), form);
+		navigate("/");
+		return;
 	}
 });

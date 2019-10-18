@@ -1,14 +1,27 @@
 function contactsBookInit() {
+	this.pages = [
+		{ route: "/", renderFuncton: renderHome },
+		{ route: /^\/edit\/[0-9]+$/, renderFuncton: renderEdit },
+		{ route: /^\/history\/[0-9]+$/, renderFuncton: renderHistory },
+		{ route: "/new", renderFuncton: renderNew }
+	];
+
 	this.store = {
 		contactsBook: []
 	};
+	const store = this.store;
 
 	this.currentContact = {
 		id: "",
 		comments: []
 	};
 
-	console.log(this.currentContact);
+	this.clearCurrentContact = () => {
+		this.currentContact.id = "";
+		this.currentContact.comments = [];
+		delete this.currentContact.phones;
+		delete this.currentContact.emails;
+	};
 
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs
 
@@ -33,119 +46,88 @@ function contactsBookInit() {
 	};
 
 	//create basic markup
+	const content = document.getElementById("root");
 
-	let header, main, footer;
+	function renderHome(path) {
+		if (store.contactsBook.length === 0) {
+			navigate("/new");
+			return;
+		}
 
-	const grid = (() => {
-		let grid = createDiv("col-10");
-		grid.id = "contacts-grid";
-		return grid;
-	})();
+		cleanContent(content);
 
-	const details = (() => {
-		let details = createDiv("col-10");
-		details.id = "details";
-		let detailsHeading = createDiv("welcome");
-		let heading = document.createElement("h2");
-		heading.innerHTML = "Contact's details and history";
-		let linkBack = document.createElement("a");
-		linkBack.classList.add("link-back");
-		linkBack.innerHTML = "Back to contacts";
-		linkBack.title = "Go back to all contacts";
-		linkBack.href = "/";
-		let icon = document.createElement("i");
-		icon.classList.add("icofont-long-arrow-left");
-		linkBack.prepend(icon);
-		detailsHeading.innerHTML += heading.outerHTML + linkBack.outerHTML;
-		details.append(detailsHeading);
-		return details;
-	})();
+		const grid = createContactsGrid();
 
-	const routes = {
-		"/": grid,
-		"/details": details
-	};
+		grid.append(createGridHeading(store.contactsBook.length));
 
-	const content = (() => {
-		let content = createDiv(["row", "no-gutters", "items-center"]);
-		content.id = "root";
-		content.append(routes[window.location.pathname]);
-		return content;
-	})();
-
-	Router.onNavigate = path => {
-		let currentPage = content.childNodes[0];
-
-		window.history.pushState({}, path, window.location.origin + path);
-
-		content.replaceChild(routes[path], currentPage);
-	};
-
-	window.onpopstate = () => {
-		let currentPage = content.childNodes[0];
-
-		content.replaceChild(routes[window.location.pathname], currentPage);
-	};
-
-	//Create header
-	(() => {
-		let containerFluid, row, headerH1, a;
-		containerFluid = createDiv("container-fluid");
-		row = createDiv("row");
-		containerFluid.append(row);
-		header = document.createElement("header");
-		headerH1 = document.createElement("h1");
-		a = document.createElement("a");
-		a.href = "/";
-		a.title = "Contacts Book";
-		a.innerHTML = "Contacts Book";
-		headerH1.classList.add("col-12");
-		headerH1.innerHTML += a.outerHTML;
-
-		row.append(headerH1);
-		header.append(containerFluid);
-	})();
-
-	//Create main with containers and rows, columns inside
-	(() => {
-		let container, row, col_11;
-		container = createDiv("container");
-		row = createDiv(["row", "items-center", "wrap"]);
-		container.append(row);
-		col_11 = createDiv("col-11");
-		row.append(col_11);
-		col_11.append(content);
-		main = document.createElement("main");
-		main.classList.add("container-fluid");
-		main.append(container);
-	})();
-
-	//create footer
-	(() => {
-		footer = document.createElement("footer");
-		footer.classList.add("container-fluid");
-		let p = document.createElement("p");
-		p.innerHTML = "Contacts Book";
-		footer.append(p);
-	})();
-
-	document.body.append(header);
-	document.body.append(main);
-	document.body.append(footer);
-
-	if (this.store.contactsBook.length > 0) {
-		grid.append(createGridHeading(this.store.contactsBook.length));
-		this.store.contactsBook
+		store.contactsBook
 			.map(item => {
-				let card = createContactCard(item);
+				let card = createViewContactCard(item);
 				return (grid.innerHTML += card.outerHTML);
 			})
 			.join("\n");
-	} else {
-		grid.append(createGridHeading());
-		let card = createContactCard();
-		card.classList.add("new");
-		grid.append(card);
+
+		content.append(grid);
+	}
+
+	function renderNew(path) {
+		cleanContent(content);
+
+		const grid = createContactsGrid();
+
+		grid.append(createGridHeading("new"));
+		grid.append(createEmptyContactCard());
+
+		content.append(grid);
+	}
+
+	function renderEdit(path) {
+		const id = parseInt(path.split("/")[2]);
+		cleanContent(content);
+
+		const grid = createContactsGrid();
+
+		grid.append(createGridHeading(store.contactsBook.length));
+
+		store.contactsBook
+			.map(item => {
+				const card =
+					item.id === id
+						? createEditContactCard(item)
+						: createViewContactCard(item);
+
+				return (grid.innerHTML += card.outerHTML);
+			})
+			.join("\n");
+
+		let card = grid.querySelector(".edit");
+		let contact = findContact(card.getAttribute("data-contactID"));
+		App.currentContact = { ...contact.history[0] };
+		App.currentContact.id = contact.id;
+		App.currentContact.comments = [];
+
+		content.append(grid);
+	}
+
+	function renderHistory(path) {
+		const id = parseInt(path.split("/")[2]);
+		cleanContent(content);
+
+		const details = createDetails();
+
+		const history = detailsContent(
+			store.contactsBook.find(item => item.id === id)
+		);
+
+		details.append(history);
+
+		content.append(details);
+	}
+
+	function cleanContent(element) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
 	}
 }
 

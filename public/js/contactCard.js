@@ -32,5 +32,5 @@ ContactCardImage.prototype.addName = function(name) {
 };
 
 ContactCardImage.prototype.addComments = function(comment) {
-	this.comments = [...this.comments, comment];
+	this.comments = [...comment];
 };
