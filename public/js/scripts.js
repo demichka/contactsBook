@@ -26,14 +26,14 @@ function contactsBookInit() {
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs
 
 	try {
-		this.store.contactsBook = JSON.parse(window.localStorage.contactsBook);
+		store.contactsBook = JSON.parse(window.localStorage.contactsBook);
 	} catch (e) {
-		this.store = {
+		store = {
 			contactsBook: []
 		};
 	}
 
-	console.log(this.store, "store");
+	console.log(store, "store");
 
 	this.state = {
 		historyUndo: [],
@@ -44,10 +44,8 @@ function contactsBookInit() {
 		(this.state.historyUndo = []), (this.state.historyRedo = []);
 	};
 
-	this.store.save = () => {
-		window.localStorage.contactsBook = JSON.stringify(
-			this.store.contactsBook
-		);
+	store.save = () => {
+		window.localStorage.contactsBook = JSON.stringify(store.contactsBook);
 	};
 
 	//create basic markup

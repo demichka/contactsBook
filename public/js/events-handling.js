@@ -107,22 +107,18 @@ const onKeyUpInput = listen("keyup", ".control", e => {
 	let val = e.target.value;
 
 	if (val !== "" && e.target.name === "phonef") {
-		if (e.target.offsetParent.querySelector(".error-phone")) {
-			e.target.offsetParent.removeChild(
-				document.querySelector(".error-phone")
-			);
+		if (e.target.nextSibling.nextSibling) {
+			e.target.parentNode.removeChild(e.target.nextSibling.nextSibling);
 		}
 	}
 	if (val !== "" && e.target.name === "emailf") {
-		if (e.target.offsetParent.querySelector(".error-email")) {
-			e.target.offsetParent.removeChild(
-				document.querySelector(".error-email")
-			);
+		if (e.target.nextSibling.nextSibling) {
+			e.target.parentNode.removeChild(e.target.nextSibling.nextSibling);
 		}
 	}
 	if (val !== "" && e.target.name === "namef") {
-		if (e.target.offsetParent.querySelector(".error-name")) {
-			e.target.offsetParent.removeChild(
+		if (e.target.parentNode.querySelector(".error-name")) {
+			e.target.parentNode.removeChild(
 				document.querySelector(".error-name")
 			);
 		}
@@ -130,12 +126,20 @@ const onKeyUpInput = listen("keyup", ".control", e => {
 });
 
 const onAddPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
+	if (e.target.parentNode.querySelector(".errorMsg")) {
+		e.target.offsetParent
+			.querySelector(".control")
+			.setAttribute("placeholder", "Enter phone number");
+		e.target.parentNode.removeChild(
+			e.target.parentNode.querySelector(".errorMsg")
+		);
+	}
 	let val = e.target.previousElementSibling.value;
 	if (val !== "") {
 		e.target.offsetParent.prepend(createlistItem("edit", "phone", ""));
 		e.target.parentNode.replaceChild(createInputBtn("remove"), e.target);
 	} else {
-		e.target.offsetParent.append(
+		e.target.parentNode.append(
 			createErrorMsg("error-phone", "Enter number")
 		);
 	}
@@ -147,12 +151,20 @@ let onRemovePhoneNumber = listen("click", ".phone-list .remove-i", e => {
 	e.target.offsetParent.removeChild(e.target.parentElement);
 });
 let addEmailAddress = listen("click", ".email-list .add-i", e => {
+	if (e.target.parentNode.querySelector(".errorMsg")) {
+		e.target.offsetParent
+			.querySelector(".control")
+			.setAttribute("placeholder", "Enter email number");
+		e.target.parentNode.removeChild(
+			e.target.parentNode.querySelector(".errorMsg")
+		);
+	}
 	let val = e.target.previousElementSibling.value;
 	if (val !== "") {
 		e.target.offsetParent.prepend(createlistItem("edit", "email", ""));
 		e.target.parentNode.replaceChild(createInputBtn("remove"), e.target);
 	} else {
-		e.target.offsetParent.append(
+		e.target.parentNode.append(
 			createErrorMsg("error-email", "Enter email")
 		);
 	}
@@ -198,17 +210,46 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		for (let i = 0; i < elementList.length; i++) {
 			let el = elementList[i];
 			if (el.name === "phonef" && el.value !== "") {
-				contactImage.addPhone(el.value);
-				el.previousElementSibling.innerHTML = el.value;
-				el.previousElementSibling.href += el.value;
+				if (isPhoneValid(el.value)) {
+					contactImage.addPhone(el.value);
+				} else {
+					el.parentNode.append(
+						createErrorMsg(
+							"error-phone",
+							"Enter valid phone number"
+						)
+					);
+					App.currentContact.comments.splice(
+						App.currentContact.comments.findIndex(item =>
+							item.includes(el.value)
+						),
+						1
+					);
+					el.placeholder = el.value;
+					el.value = "";
+				}
 			}
 			if (el.name === "emailf" && el.value !== "") {
-				contactImage.addEmail(el.value);
-				el.previousElementSibling.innerHTML = el.value;
-				el.previousElementSibling.href += el.value;
+				if (isEmailValid(el.value)) {
+					contactImage.addEmail(el.value);
+				} else {
+					el.parentNode.append(
+						createErrorMsg("error-email", "Enter valid email")
+					);
+					App.currentContact.comments.splice(
+						App.currentContact.comments.findIndex(item =>
+							item.includes(el.value)
+						),
+						1
+					);
+					el.placeholder = el.value;
+					el.value = "";
+				}
 			}
 		}
-
+		if (card.querySelectorAll(".errorMsg").length) {
+			return;
+		}
 		contactImage.addComments(App.currentContact.comments);
 		contactImage.addName(nameInput.value);
 		contact.addImage(contactImage);
@@ -304,4 +345,22 @@ const enableButton = (btn, enable) => {
 	} else {
 		btn.setAttribute("disabled", "disabled");
 	}
+};
+
+const isEmailValid = a => {
+	if (
+		a.length <= 4 ||
+		a.search("@") === -1 ||
+		a.indexOf("@") !== a.lastIndexOf("@") ||
+		a.lastIndexOf(".") >= a.length - 2 ||
+		a.lastIndexOf(".") <= a.lastIndexOf("@") + 2
+	) {
+		return false;
+	}
+	return true;
+};
+
+const isPhoneValid = a => {
+	let numbers = new RegExp(/^[0-9]{6,12}$/);
+	return !!a.match(numbers);
 };
