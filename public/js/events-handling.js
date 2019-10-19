@@ -44,6 +44,7 @@ const onHistoryBtn = listen("click", ".btn-history", e => {
 const onBackLink = listen("click", ".link-back", e => {
 	e.preventDefault();
 	App.clearCurrentContact();
+	App.clearState();
 	if (document.querySelector(".details-content")) {
 		document
 			.getElementById("details")
@@ -226,62 +227,49 @@ const onSaveContact = listen("click", ".btn-save", e => {
 
 const onRestoreBtn = listen("click", ".restore-btn", e => {
 	const version = e.target.getAttribute("data-version");
-	restoreToVersion(version, false);
-	// updateContact({ ...App.currentContact });
-	// App.store.save();
+
+	App.state.historyUndo = [
+		...App.state.historyUndo,
+		App.currentContact.currentVersion
+	];
+
+	App.state.historyRedo = [];
+
+	updateUndoRedoButtons();
+	restoreToVersion(version);
 });
 
 const onUndoBtn = listen("click", ".undo-btn", e => {
-	App.state.historyUndo.count--;
-	App.state.historyRedo.count++;
-	console.log(App.state.historyUndo.count, "count Undo");
-	console.log(App.state.historyRedo.count, "count Redo");
-	document.querySelector(".redo-btn").removeAttribute("disabled");
-
-	restoreToVersion(
-		App.state.historyUndo.versions[App.state.historyUndo.count],
-		true
-	);
-
-	if (App.state.historyUndo.count === 0) {
-		e.target.setAttribute("disabled", "disabled");
-
-		App.state.historyUndo.versions.length = 0;
+	if (!App.state.historyUndo.length) {
+		return;
 	}
+
+	const stateToChangeTo = App.state.historyUndo.pop();
+	App.state.historyRedo = [
+		App.currentContact.currentVersion,
+		...App.state.historyRedo
+	];
+
+	updateUndoRedoButtons();
+	restoreToVersion(stateToChangeTo);
 });
 
 const onRedoBtn = listen("click", ".redo-btn", e => {
-	document.querySelector(".redo-btn").removeAttribute("disabled");
-	let v = App.state.historyRedo.count - 1;
-	console.log(App.state.historyRedo.versions[v], v, "version redo");
-	restoreToVersion(App.state.historyRedo.versions[v], true);
-	console.log(App.state.historyRedo.count, "count");
-	App.state.historyRedo.count--;
-
-	if (App.state.historyRedo.count === 0) {
-		e.target.setAttribute("disabled", "disabled");
-		// App.state.historyRedo.versions.length = 0;
+	if (!App.state.historyRedo.length) {
+		return;
 	}
+
+	const stateToChangeTo = App.state.historyRedo.shift();
+	App.state.historyUndo = [
+		...App.state.historyUndo,
+		App.currentContact.currentVersion
+	];
+
+	updateUndoRedoButtons();
+	restoreToVersion(stateToChangeTo);
 });
 
-const restoreToVersion = (version, undo) => {
-	if (!undo) {
-		App.state.historyUndo.versions = [
-			...App.state.historyUndo.versions,
-			App.currentContact.currentVersion
-		];
-
-		App.state.historyUndo.count = App.state.historyUndo.versions.length;
-	}
-	if (undo) {
-		App.state.historyRedo.versions = [
-			App.currentContact.currentVersion,
-			...App.state.historyRedo.versions
-		];
-	}
-
-	console.log(App.state);
-	console.log(version, "version after");
+const restoreToVersion = version => {
 	App.currentContact.currentVersion = parseInt(version);
 	let history = document.querySelectorAll("li");
 	history.forEach(item => {
@@ -294,11 +282,26 @@ const restoreToVersion = (version, undo) => {
 			document.querySelector(".contact-card")
 		);
 
-	console.log(version);
 	document
 		.querySelector(`[data-version="${version}"]`)
 		.classList.add("current");
 
-	document.querySelector(".undo-btn").removeAttribute("disabled");
-	return;
+	updateContact({ ...App.currentContact });
+	App.store.save();
+};
+
+const updateUndoRedoButtons = () => {
+	const btnUndo = document.querySelector(".undo-btn");
+	enableButton(btnUndo, App.state.historyUndo.length > 0);
+
+	const btnRedo = document.querySelector(".redo-btn");
+	enableButton(btnRedo, App.state.historyRedo.length > 0);
+};
+
+const enableButton = (btn, enable) => {
+	if (enable) {
+		btn.removeAttribute("disabled");
+	} else {
+		btn.setAttribute("disabled", "disabled");
+	}
 };

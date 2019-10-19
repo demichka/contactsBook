@@ -444,12 +444,14 @@ const updateHistoryList = item => {
 const createUndoRedoBtns = () => {
 	let btnBlock = document.createElement("div");
 	btnBlock.classList.add("undo-redo-btns");
+
 	let btnUndo = document.createElement("button");
 	btnUndo.classList.add("undo-btn");
 	btnUndo.type = "button";
 	btnUndo.title = "Undo";
 	btnUndo.innerHTML = "Undo";
 	btnUndo.setAttribute("disabled", "disabled");
+
 	let btnRedo = document.createElement("button");
 	btnRedo.classList.add("redo-btn");
 	btnRedo.type = "button";

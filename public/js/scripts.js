@@ -35,19 +35,13 @@ function contactsBookInit() {
 
 	console.log(this.store, "store");
 
-	this.store.savePrevState = () => {
-		this.store.prevState = [...this.store.contactsBook];
+	this.state = {
+		historyUndo: [],
+		historyRedo: []
 	};
 
-	this.state = {
-		historyUndo: {
-			versions: [],
-			count: 0
-		},
-		historyRedo: {
-			versions: [],
-			count: 0
-		}
+	this.clearState = () => {
+		(this.state.historyUndo = []), (this.state.historyRedo = []);
 	};
 
 	this.store.save = () => {
