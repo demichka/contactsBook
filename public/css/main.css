@@ -147,11 +147,9 @@ header h1 a {
 footer p {
   margin: 1.125rem 0;
   text-align: center;
-  color: rgba(246, 245, 174, 0.4);
+  color: rgba(246, 245, 174, 0.7);
   font-family: "PT Serif Caption", serif;
-  text-transform: capitalize;
   white-space: nowrap;
-  text-shadow: 2px 2px #641919;
 }
 
 .contact-card,
@@ -501,4 +499,13 @@ i[class^="icofont"] {
   border: 1px solid #BBA7A9;
   cursor: default;
   pointer-events: none;
+}
+
+footer a {
+  color: #BBA7A9;
+  text-decoration: underline;
+}
+
+footer a:hover {
+  color: #F6F5AE;
 }

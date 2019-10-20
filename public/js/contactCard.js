@@ -4,6 +4,7 @@ function ContactCard(id) {
 	this.currentVersion = 0;
 }
 
+//Image is a version of contact, which is created, when user clicks on Save button
 ContactCard.prototype.newImage = function() {
 	return new ContactCardImage();
 };

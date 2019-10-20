@@ -43,7 +43,12 @@
 		footer = document.createElement("footer");
 		footer.classList.add("container-fluid");
 		let p = document.createElement("p");
-		p.innerHTML = "Contacts Book";
+		let a = document.createElement("a");
+		a.href = "http://demichka.me";
+		a.title = "Visit my website";
+		a.innerHTML = "Eugenia Demicheva";
+		a.setAttribute("target", "_blank");
+		p.innerHTML = "Contacts Book by " + a.outerHTML;
 		footer.append(p);
 	})();
 

@@ -7,4 +7,4 @@ app.use(express.static("public"));
 app.all("*", (req, res) =>
 	res.sendFile(path.join(__dirname, "public", "index.html"))
 );
-app.listen(3003, () => console.log("Welcome to ContactsBook on the port 3003"));
+app.listen(3000, () => console.log("Welcome to ContactsBook on the port 3000"));

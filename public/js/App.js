@@ -35,8 +35,6 @@ function contactsBookInit() {
 		};
 	}
 
-	console.log(this.store, "store");
-
 	this.state = {
 		historyUndo: [],
 		historyRedo: []
