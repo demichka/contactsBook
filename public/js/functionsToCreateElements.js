@@ -99,7 +99,7 @@ const createInputBtn = action => {
 };
 
 const createContactsGrid = () => {
-	let grid = createDiv("col-10");
+	let grid = createDiv("col-12");
 	grid.id = "contacts-grid";
 	return grid;
 };
@@ -347,7 +347,7 @@ const createUndoRedoIcons = action => {
 };
 
 const createDetails = () => {
-	let details = createDiv("col-10");
+	let details = createDiv("col-12");
 	details.id = "details";
 	let detailsHeading = createDiv("welcome");
 	let heading = document.createElement("h2");
@@ -399,7 +399,7 @@ const createHistoryList = item => {
 	contact = { ...item };
 	list = document.createElement("ol");
 	list.reversed = "true";
-	list.classList.add("history-list", "col-11");
+	list.classList.add("history-list", "col-12");
 
 	for (let i = 0; i < contact.history.length; i++) {
 		let listItem = document.createElement("li");

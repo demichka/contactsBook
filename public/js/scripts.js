@@ -1,15 +1,17 @@
 function contactsBookInit() {
 	this.pages = [
-		{ route: "/", renderFuncton: renderHome },
-		{ route: /^\/edit\/[0-9]+$/, renderFuncton: renderEdit },
-		{ route: /^\/history\/[0-9]+$/, renderFuncton: renderHistory },
-		{ route: "/new", renderFuncton: renderNew }
+		{ route: "/", renderFuncton: renderHome.bind(this) },
+		{ route: /^\/edit\/[0-9]+$/, renderFuncton: renderEdit.bind(this) },
+		{
+			route: /^\/history\/[0-9]+$/,
+			renderFuncton: renderHistory.bind(this)
+		},
+		{ route: "/new", renderFuncton: renderNew.bind(this) }
 	];
 
 	this.store = {
 		contactsBook: []
 	};
-	const store = this.store;
 
 	this.currentContact = {
 		id: "",
@@ -26,14 +28,14 @@ function contactsBookInit() {
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs
 
 	try {
-		store.contactsBook = JSON.parse(window.localStorage.contactsBook);
+		this.store.contactsBook = JSON.parse(window.localStorage.contactsBook);
 	} catch (e) {
-		store = {
+		this.store = {
 			contactsBook: []
 		};
 	}
 
-	console.log(store, "store");
+	console.log(this.store, "store");
 
 	this.state = {
 		historyUndo: [],
@@ -44,15 +46,17 @@ function contactsBookInit() {
 		(this.state.historyUndo = []), (this.state.historyRedo = []);
 	};
 
-	store.save = () => {
-		window.localStorage.contactsBook = JSON.stringify(store.contactsBook);
+	this.store.save = () => {
+		window.localStorage.contactsBook = JSON.stringify(
+			this.store.contactsBook
+		);
 	};
 
 	//create basic markup
 	const content = document.getElementById("root");
 
 	function renderHome(path) {
-		if (store.contactsBook.length === 0) {
+		if (this.store.contactsBook.length === 0) {
 			navigate("/new");
 			return;
 		}
@@ -61,9 +65,9 @@ function contactsBookInit() {
 
 		const grid = createContactsGrid();
 
-		grid.append(createGridHeading(store.contactsBook.length));
+		grid.append(createGridHeading(this.store.contactsBook.length));
 
-		store.contactsBook
+		this.store.contactsBook
 			.map(item => {
 				let card = createViewContactCard(item);
 				return (grid.innerHTML += card.outerHTML);
@@ -90,9 +94,9 @@ function contactsBookInit() {
 
 		const grid = createContactsGrid();
 
-		grid.append(createGridHeading(store.contactsBook.length));
+		grid.append(createGridHeading(this.store.contactsBook.length));
 
-		store.contactsBook
+		this.store.contactsBook
 			.map(item => {
 				const card =
 					item.id === id
@@ -120,7 +124,7 @@ function contactsBookInit() {
 		const details = createDetails();
 
 		App.currentContact = {
-			...store.contactsBook.find(item => item.id === id)
+			...this.store.contactsBook.find(item => item.id === id)
 		};
 		history = detailsContent(App.currentContact);
 
