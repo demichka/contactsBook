@@ -4,7 +4,7 @@
 
 Start installation with `npm install`
 Then launch website with command `node index`
-Open [localhost:3000](http://localhost:3000/) in Chrome, Firefox or Opera and enjoy testing =)
+Open [localhost:3000](http://localhost:3000/) in Chrome, Firefox or Opera and test it.
 
 ## Begin with adding first contact to your contact's book
 

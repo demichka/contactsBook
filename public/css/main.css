@@ -180,7 +180,7 @@ footer p {
 }
 
 .contact-card.edit .btn-cancel {
-  display: block;
+  display: initial;
 }
 
 .contact-card.edit .btn-edit {
@@ -235,6 +235,8 @@ i[class^="icofont"] {
 .contact-card-body dl dd a:hover {
   color: #641919;
 }
+
+
 
 .btn.btn-edit,
 .btn.btn-save {
