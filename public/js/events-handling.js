@@ -30,12 +30,12 @@ const [listen, unlisten] = (() => {
 })();
 
 const onAddContactBtn = listen("click", ".welcome .btn-edit", e => {
+	App.clearCurrentContact();
 	navigate("/new");
-	return;
 });
 
 const onHistoryBtn = listen("click", ".btn-history", e => {
-	const card = e.target.offsetParent.parentNode;
+	const card = e.target.closest(".contact-card");
 	let contact = findContact(card.getAttribute("data-contactID"));
 	App.currentContact = { ...contact };
 	navigate("/history/" + contact.id);
@@ -54,17 +54,18 @@ const onBackLink = listen("click", ".link-back", e => {
 
 const onEditContactBtn = listen("click", ".read .btn-edit", e => {
 	e.preventDefault();
-	const card = e.target.offsetParent.parentNode;
+	const card = e.target.closest(".contact-card");
 	let contact = findContact(card.getAttribute("data-contactID"));
 	navigate("/edit/" + contact.id);
 });
 
 const onCancelContactBtn = listen("click", ".btn-cancel", e => {
+	App.clearCurrentContact();
 	navigate("/");
 });
 
 const onRemoveContactBtn = listen("click", ".btn-remove", e => {
-	let card = e.target.offsetParent.parentNode;
+	let card = e.target.closest(".contact-card");
 	let cardId = card.getAttribute("data-contactID");
 	deleteContact(cardId);
 	navigate("/");
@@ -72,7 +73,14 @@ const onRemoveContactBtn = listen("click", ".btn-remove", e => {
 
 const onFocus = listen("focusin", ".control", e => {
 	App.currentContact.input = e.target.value;
+	e.target.removeAttribute("placeholder");
+	if (e.target.offsetParent.querySelector(".errorMsg")) {
+		e.target.offsetParent.removeChild(
+			e.target.offsetParent.querySelector(".errorMsg")
+		);
+	}
 });
+
 const onFocusout = listen("focusout", ".control", e => {
 	let comment = "";
 	if (App.currentContact.input === e.target.value) {
@@ -103,28 +111,6 @@ const onFocusout = listen("focusout", ".control", e => {
 	App.currentContact.comments = [...App.currentContact.comments, comment];
 });
 
-const onKeyUpInput = listen("keyup", ".control", e => {
-	let val = e.target.value;
-
-	if (val !== "" && e.target.name === "phonef") {
-		if (e.target.nextSibling.nextSibling) {
-			e.target.parentNode.removeChild(e.target.nextSibling.nextSibling);
-		}
-	}
-	if (val !== "" && e.target.name === "emailf") {
-		if (e.target.nextSibling.nextSibling) {
-			e.target.parentNode.removeChild(e.target.nextSibling.nextSibling);
-		}
-	}
-	if (val !== "" && e.target.name === "namef") {
-		if (e.target.parentNode.querySelector(".error-name")) {
-			e.target.parentNode.removeChild(
-				document.querySelector(".error-name")
-			);
-		}
-	}
-});
-
 const onAddPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
 	if (e.target.parentNode.querySelector(".errorMsg")) {
 		e.target.offsetParent
@@ -136,36 +122,43 @@ const onAddPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
 	}
 	let val = e.target.previousElementSibling.value;
 	if (val !== "") {
-		e.target.offsetParent.prepend(createlistItem("edit", "phone", ""));
+		document
+			.querySelector(".phone-list")
+			.prepend(createlistItem("edit", "phone", ""));
 		e.target.parentNode.replaceChild(createInputBtn("remove"), e.target);
 	} else {
 		e.target.parentNode.append(
-			createErrorMsg("error-phone", "Enter number")
+			createErrorMsg("error-phone", "Field shouldn't be empty")
 		);
 	}
 });
+
 let onRemovePhoneNumber = listen("click", ".phone-list .remove-i", e => {
 	let comment =
 		"removed phone: " + e.target.parentElement.querySelector("input").value;
 	App.currentContact.comments = [...App.currentContact.comments, comment];
-	e.target.offsetParent.removeChild(e.target.parentElement);
+	document.querySelector(".phone-list").removeChild(e.target.parentElement);
 });
+
 let addEmailAddress = listen("click", ".email-list .add-i", e => {
 	if (e.target.parentNode.querySelector(".errorMsg")) {
-		e.target.offsetParent
+		e.target.parentNode
 			.querySelector(".control")
 			.setAttribute("placeholder", "Enter email number");
-		e.target.parentNode.removeChild(
+
+		e.target.offsetParent.removeChild(
 			e.target.parentNode.querySelector(".errorMsg")
 		);
 	}
 	let val = e.target.previousElementSibling.value;
 	if (val !== "") {
-		e.target.offsetParent.prepend(createlistItem("edit", "email", ""));
+		document
+			.querySelector(".email-list")
+			.prepend(createlistItem("edit", "email", ""));
 		e.target.parentNode.replaceChild(createInputBtn("remove"), e.target);
 	} else {
 		e.target.parentNode.append(
-			createErrorMsg("error-email", "Enter email")
+			createErrorMsg("error-email", "Field shouldn't be empty")
 		);
 	}
 });
@@ -174,7 +167,7 @@ const onRemoveEmailAddress = listen("click", ".email-list .remove-i", e => {
 	let comment =
 		"removed email: " + e.target.parentElement.querySelector("input").value;
 	App.currentContact.comments = [...App.currentContact.comments, comment];
-	e.target.offsetParent.removeChild(e.target.parentElement);
+	document.querySelector(".email-list").removeChild(e.target.parentElement);
 });
 
 const onSaveContact = listen("click", ".btn-save", e => {
@@ -185,9 +178,11 @@ const onSaveContact = listen("click", ".btn-save", e => {
 	let nameInput = e.target.offsetParent.getElementsByClassName("namef")[0];
 
 	if (nameInput.value === "") {
-		e.target.parentNode.parentNode.append(
-			createErrorMsg("error-name", "Enter name")
-		);
+		if (!document.querySelector(".error-name")) {
+			e.target.parentNode.parentNode.prepend(
+				createErrorMsg("error-name", "Enter name")
+			);
+		}
 		return;
 	} else {
 		let contact;
@@ -199,7 +194,14 @@ const onSaveContact = listen("click", ".btn-save", e => {
 			contact = new ContactCard("0");
 
 			if (App.store.contactsBook !== null) {
-				contact.id = App.store.contactsBook.length;
+				const contactBookIds = App.store.contactsBook.map(
+					item => item.id
+				);
+				const newContactId =
+					contactBookIds.length > 0
+						? Math.max(...contactBookIds) + 1
+						: 0;
+				contact.id = newContactId;
 			}
 		}
 		contactImage = contact.newImage();
@@ -215,7 +217,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 				} else {
 					el.parentNode.append(
 						createErrorMsg(
-							"error-phone",
+							"error-valid",
 							"Enter valid phone number"
 						)
 					);
@@ -234,7 +236,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 					contactImage.addEmail(el.value);
 				} else {
 					el.parentNode.append(
-						createErrorMsg("error-email", "Enter valid email")
+						createErrorMsg("error-valid", "Enter valid email")
 					);
 					App.currentContact.comments.splice(
 						App.currentContact.comments.findIndex(item =>
@@ -247,7 +249,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 				}
 			}
 		}
-		if (card.querySelectorAll(".errorMsg").length) {
+		if (card.querySelectorAll(".error-valid").length) {
 			return;
 		}
 		contactImage.addComments(App.currentContact.comments);

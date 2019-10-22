@@ -19,10 +19,11 @@ function contactsBookInit() {
 	};
 
 	this.clearCurrentContact = () => {
-		this.currentContact.id = "";
-		this.currentContact.comments = [];
-		delete this.currentContact.phones;
-		delete this.currentContact.emails;
+		delete this.currentContact;
+		this.currentContact = {
+			id: "",
+			comments: []
+		};
 	};
 
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs

@@ -192,7 +192,7 @@ footer p {
 }
 
 .contact-card.new .btn-cancel {
-  display: block;
+  display: initial;
 }
 
 .details-content .btn-group {
@@ -205,6 +205,14 @@ footer p {
 
 .contact-card.new dl dd:first-child .inputBtn.remove-i {
   display: none;
+}
+
+.contact-card-heading {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 20px 30px;
+  position: relative;
 }
 
 .contact-card.new dl dd .inputBtn.add-i {
@@ -220,6 +228,7 @@ i[class^="icofont"] {
   display: flex;
   align-items: center;
   margin: 0 0 1.125rem 0;
+  position: relative;
 }
 
 .contact-card-body dl dd i {
@@ -376,13 +385,16 @@ i[class^="icofont"] {
   position: absolute;
   font-size: .75rem;
   color: #ff0000;
-  width: 47%;
-  right: 0;
   pointer-events: none;
+  top: -15px;
+  text-align: center;
+  width: 100%;
 }
 
 .errorMsg.error-name {
-  top: 3px;
+  text-align: center;
+  width: 100%;
+  top: 0px;
 }
 
 #details {

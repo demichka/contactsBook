@@ -114,12 +114,7 @@
         width: 8.33333%;
     }
 
-    .contact-card-heading {
-        display: flex;
-        justify-content: space-between;
-        position: relative;
-        padding: 20px 30px;
-    }
+
 
     .contact-card-heading h3 {
         margin: 0;
@@ -168,6 +163,7 @@
         list-style-type: square;
         columns: 2;
     }
+
 }
 
 @media (max-width: 568px) {
