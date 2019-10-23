@@ -38,7 +38,8 @@ function contactsBookInit() {
 
 	this.state = {
 		historyUndo: [],
-		historyRedo: []
+		historyRedo: [],
+		comments: []
 	};
 
 	this.clearState = () => {

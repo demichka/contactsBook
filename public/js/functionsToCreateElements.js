@@ -278,6 +278,8 @@ const createViewContactCard = contact => {
 const createEmptyContactCard = () => {
 	const card = createCardElement();
 	card.classList.add("new");
+	card.data = ContactCard();
+	console.log(card.data);
 	card.querySelector(".contact-card-heading").append(createNameInput());
 	card.querySelector(".contact-card-heading").innerHTML += createBtnGroup(
 		"new"

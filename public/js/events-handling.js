@@ -194,6 +194,7 @@ const onSaveContact = listen("click", ".btn-save", e => {
 			contact = new ContactCard("0");
 
 			if (App.store.contactsBook !== null) {
+				contact.id = App.store.contactsBook.length;
 				const contactBookIds = App.store.contactsBook.map(
 					item => item.id
 				);

@@ -1,12 +1,33 @@
+const ContactCardPrototype = {
+	id: "",
+	history: [],
+	currentVersion: 0,
+	createContactId: function() {
+		let contactBookIds = Math.max(
+			App.store.contactsBook.map(item => item.id)
+		);
+		const newContactId =
+			contactBookIds.length > 0 ? Math.max(...contactBookIds) + 1 : 0;
+
+		return newContactId;
+	}
+};
+
 function ContactCard(id) {
-	this.id = id;
-	this.history = [];
-	this.currentVersion = 0;
+	let obj = Object.create(ContactCardPrototype);
+	obj.id = id || obj.createContactId();
+	obj.history = [];
+	obj.currentVersion = 0;
+	return obj;
 }
 
 //Image is a version of contact, which is created, when user clicks on Save button
 ContactCard.prototype.newImage = function() {
 	return new ContactCardImage();
+};
+
+ContactCard.prototype.getCurrentVersion = function() {
+	return this.currentVersion;
 };
 
 ContactCard.prototype.addImage = function(image) {
