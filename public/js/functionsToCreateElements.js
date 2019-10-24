@@ -252,8 +252,9 @@ function createCardElement() {
 const createViewContactCard = contact => {
 	const card = createCardElement();
 	card.classList.add("read");
-	card.setAttribute("data-contactID", contact.id);
-	let currentVersion = contact.history[contact.currentVersion];
+	card.contactData = contact;
+	let currentVersion =
+		card.contactData.history[card.contactData.currentVersion];
 	const cardHeading = createCardHeading(currentVersion.name);
 	card.querySelector(".contact-card-heading").innerHTML +=
 		cardHeading.outerHTML + createBtnGroup().outerHTML;
@@ -278,8 +279,7 @@ const createViewContactCard = contact => {
 const createEmptyContactCard = () => {
 	const card = createCardElement();
 	card.classList.add("new");
-	card.data = ContactCard();
-	console.log(card.data);
+	card.contactData = new ContactCard();
 	card.querySelector(".contact-card-heading").append(createNameInput());
 	card.querySelector(".contact-card-heading").innerHTML += createBtnGroup(
 		"new"
@@ -303,9 +303,8 @@ const createEmptyContactCard = () => {
 const createEditContactCard = contact => {
 	const currentState = contact.history[contact.currentVersion];
 	const card = createCardElement();
+	card.contactData = contact;
 	card.classList.add("edit");
-	card.setAttribute("data-contactID", contact.id);
-
 	card.querySelector(".contact-card-heading").append(
 		createNameInput(currentState.name)
 	);
@@ -390,8 +389,9 @@ const detailsContent = item => {
 	col.classList.add("history-card");
 	list = createHistoryList(item);
 	historySection.innerHTML += list.outerHTML;
-	content.innerHTML +=
-		card.outerHTML + col.outerHTML + historySection.outerHTML;
+	content.append(card);
+	content.append(col);
+	content.append(historySection);
 	return content;
 };
 

@@ -13,23 +13,12 @@ function contactsBookInit() {
 		contactsBook: []
 	};
 
-	this.currentContact = {
-		id: "",
-		comments: []
-	};
-
-	this.clearCurrentContact = () => {
-		delete this.currentContact;
-		this.currentContact = {
-			id: "",
-			comments: []
-		};
-	};
-
 	// window.localStorage.removeItem("contactsBook"); //just for dev needs
 
 	try {
-		this.store.contactsBook = JSON.parse(window.localStorage.contactsBook);
+		this.store.contactsBook = JSON.parse(
+			window.localStorage.contactsBook
+		).map(x => new ContactCard(x));
 	} catch (e) {
 		this.store = {
 			contactsBook: []
@@ -70,7 +59,7 @@ function contactsBookInit() {
 		this.store.contactsBook
 			.map(item => {
 				let card = createViewContactCard(item);
-				return (grid.innerHTML += card.outerHTML);
+				return grid.append(card);
 			})
 			.join("\n");
 
@@ -103,15 +92,11 @@ function contactsBookInit() {
 						? createEditContactCard(item)
 						: createViewContactCard(item);
 
-				return (grid.innerHTML += card.outerHTML);
+				return grid.append(card);
 			})
 			.join("\n");
 
 		let card = grid.querySelector(".edit");
-		let contact = findContact(card.getAttribute("data-contactID"));
-		App.currentContact = { ...contact.history[0] };
-		App.currentContact.id = contact.id;
-		App.currentContact.comments = [];
 
 		content.append(grid);
 	}
@@ -123,10 +108,9 @@ function contactsBookInit() {
 
 		const details = createDetails();
 
-		App.currentContact = {
+		history = detailsContent({
 			...this.store.contactsBook.find(item => item.id === id)
-		};
-		history = detailsContent(App.currentContact);
+		});
 
 		details.append(history);
 

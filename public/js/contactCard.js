@@ -1,25 +1,24 @@
-const ContactCardPrototype = {
-	id: "",
-	history: [],
-	currentVersion: 0,
-	createContactId: function() {
-		let contactBookIds = Math.max(
-			App.store.contactsBook.map(item => item.id)
-		);
-		const newContactId =
-			contactBookIds.length > 0 ? Math.max(...contactBookIds) + 1 : 0;
-
-		return newContactId;
+function ContactCard(obj) {
+	if (!obj) {
+		this.id = this.createContactId();
+		this.history = [];
+		this.currentVersion = 0;
+		return;
 	}
-};
 
-function ContactCard(id) {
-	let obj = Object.create(ContactCardPrototype);
-	obj.id = id || obj.createContactId();
-	obj.history = [];
-	obj.currentVersion = 0;
-	return obj;
+	this.id = obj.id;
+	this.currentVersion = obj.currentVersion;
+	this.history = obj.history.map(x => new ContactCardImage(x));
 }
+
+ContactCard.prototype.createContactId = function() {
+	let contactBookIds = Math.max(
+		...App.store.contactsBook.map(item => item.id)
+	);
+	const newContactId =
+		App.store.contactsBook.length > 0 ? contactBookIds + 1 : 0;
+	return newContactId;
+};
 
 //Image is a version of contact, which is created, when user clicks on Save button
 ContactCard.prototype.newImage = function() {
@@ -57,12 +56,21 @@ function isEqualArray(a, b) {
 	return true;
 }
 
-function ContactCardImage() {
-	this.name = "";
-	this.phones = [];
-	this.emails = [];
-	this.timestamp = new Date().toISOString();
-	this.comments = [];
+function ContactCardImage(obj) {
+	if (!obj) {
+		this.name = "";
+		this.phones = [];
+		this.emails = [];
+		this.timestamp = new Date().toISOString();
+		this.comments = [];
+		return;
+	}
+
+	this.name = obj.name;
+	this.phones = [...obj.phones];
+	this.emails = [...obj.emails];
+	this.comments = [...obj.comments];
+	this.timestamp = obj.timestamp;
 }
 
 ContactCardImage.prototype.addPhone = function(phone) {

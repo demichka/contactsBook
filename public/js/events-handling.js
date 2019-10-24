@@ -30,49 +30,42 @@ const [listen, unlisten] = (() => {
 })();
 
 const onAddContactBtn = listen("click", ".welcome .btn-edit", e => {
-	App.clearCurrentContact();
 	navigate("/new");
 });
 
 const onHistoryBtn = listen("click", ".btn-history", e => {
 	const card = e.target.closest(".contact-card");
-	let contact = findContact(card.getAttribute("data-contactID"));
-	App.currentContact = { ...contact };
-	navigate("/history/" + contact.id);
+	navigate("/history/" + card.contactData.id);
 });
 
 const onBackLink = listen("click", ".link-back", e => {
 	e.preventDefault();
-	App.clearCurrentContact();
-	App.clearState();
 	if (document.querySelector(".details-content")) {
 		document
 			.getElementById("details")
 			.removeChild(document.querySelector(".details-content"));
 	}
+	App.clearState();
 });
 
 const onEditContactBtn = listen("click", ".read .btn-edit", e => {
 	e.preventDefault();
 	const card = e.target.closest(".contact-card");
-	let contact = findContact(card.getAttribute("data-contactID"));
-	navigate("/edit/" + contact.id);
+	navigate("/edit/" + card.contactData.id);
 });
 
 const onCancelContactBtn = listen("click", ".btn-cancel", e => {
-	App.clearCurrentContact();
 	navigate("/");
 });
 
 const onRemoveContactBtn = listen("click", ".btn-remove", e => {
 	let card = e.target.closest(".contact-card");
-	let cardId = card.getAttribute("data-contactID");
-	deleteContact(cardId);
+	deleteContact(card.contactData.id);
 	navigate("/");
 });
 
 const onFocus = listen("focusin", ".control", e => {
-	App.currentContact.input = e.target.value;
+	App.state.input = e.target.value;
 	e.target.removeAttribute("placeholder");
 	if (e.target.offsetParent.querySelector(".errorMsg")) {
 		e.target.offsetParent.removeChild(
@@ -83,10 +76,10 @@ const onFocus = listen("focusin", ".control", e => {
 
 const onFocusout = listen("focusout", ".control", e => {
 	let comment = "";
-	if (App.currentContact.input === e.target.value) {
+	if (App.state.input === e.target.value) {
 		return;
 	}
-	if (App.currentContact.input === "") {
+	if (App.state.input === "") {
 		comment =
 			(e.target.type === "tel"
 				? "phone"
@@ -95,6 +88,8 @@ const onFocusout = listen("focusout", ".control", e => {
 				: "email") +
 			" added: " +
 			e.target.value;
+	} else if (App.state.comments.find(x => x.indexOf("name added:") === 0)) {
+		return;
 	} else {
 		comment =
 			(e.target.type === "tel"
@@ -103,12 +98,12 @@ const onFocusout = listen("focusout", ".control", e => {
 				? "name"
 				: "email") +
 			" modified: " +
-			App.currentContact.input +
+			App.state.input +
 			" to " +
 			e.target.value;
 	}
 
-	App.currentContact.comments = [...App.currentContact.comments, comment];
+	App.state.comments = [...App.state.comments, comment];
 });
 
 const onAddPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
@@ -136,7 +131,7 @@ const onAddPhoneNumber = listen("click", ".phone-list .inputBtn.add-i", e => {
 let onRemovePhoneNumber = listen("click", ".phone-list .remove-i", e => {
 	let comment =
 		"removed phone: " + e.target.parentElement.querySelector("input").value;
-	App.currentContact.comments = [...App.currentContact.comments, comment];
+	App.state.comments = [...App.state.comments, comment];
 	document.querySelector(".phone-list").removeChild(e.target.parentElement);
 });
 
@@ -166,18 +161,21 @@ let addEmailAddress = listen("click", ".email-list .add-i", e => {
 const onRemoveEmailAddress = listen("click", ".email-list .remove-i", e => {
 	let comment =
 		"removed email: " + e.target.parentElement.querySelector("input").value;
-	App.currentContact.comments = [...App.currentContact.comments, comment];
+	App.state.comments = [...App.state.comments, comment];
 	document.querySelector(".email-list").removeChild(e.target.parentElement);
 });
 
 const onSaveContact = listen("click", ".btn-save", e => {
 	e.preventDefault();
 	let card = e.target.offsetParent.parentNode;
-	let cardId = card.getAttribute("data-contactID");
 	let edit = false;
 	let nameInput = e.target.offsetParent.getElementsByClassName("namef")[0];
+	let contact = card.contactData;
+	if (contact.history.length != 0) {
+		edit = true;
+	}
 
-	if (nameInput.value === "") {
+	if (nameInput.value === "" && !document.querySelector(".error-name")) {
 		if (!document.querySelector(".error-name")) {
 			e.target.parentNode.parentNode.prepend(
 				createErrorMsg("error-name", "Enter name")
@@ -185,26 +183,6 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		}
 		return;
 	} else {
-		let contact;
-		let contactImage = {};
-		if (App.currentContact.id !== "") {
-			contact = findContact(cardId);
-			edit = true;
-		} else {
-			contact = new ContactCard("0");
-
-			if (App.store.contactsBook !== null) {
-				contact.id = App.store.contactsBook.length;
-				const contactBookIds = App.store.contactsBook.map(
-					item => item.id
-				);
-				const newContactId =
-					contactBookIds.length > 0
-						? Math.max(...contactBookIds) + 1
-						: 0;
-				contact.id = newContactId;
-			}
-		}
 		contactImage = contact.newImage();
 
 		let form = e.target.parentElement.parentElement.parentElement;
@@ -222,8 +200,8 @@ const onSaveContact = listen("click", ".btn-save", e => {
 							"Enter valid phone number"
 						)
 					);
-					App.currentContact.comments.splice(
-						App.currentContact.comments.findIndex(item =>
+					App.state.comments.splice(
+						App.state.comments.findIndex(item =>
 							item.includes(el.value)
 						),
 						1
@@ -239,8 +217,8 @@ const onSaveContact = listen("click", ".btn-save", e => {
 					el.parentNode.append(
 						createErrorMsg("error-valid", "Enter valid email")
 					);
-					App.currentContact.comments.splice(
-						App.currentContact.comments.findIndex(item =>
+					App.state.comments.splice(
+						App.state.comments.findIndex(item =>
 							item.includes(el.value)
 						),
 						1
@@ -253,16 +231,17 @@ const onSaveContact = listen("click", ".btn-save", e => {
 		if (card.querySelectorAll(".error-valid").length) {
 			return;
 		}
-		contactImage.addComments(App.currentContact.comments);
+		contactImage.addComments(App.state.comments);
 		contactImage.addName(nameInput.value);
 		contact.addImage(contactImage);
 		contact.currentVersion = 0;
-		updateContact(contact);
-
+		if (edit) {
+			updateContact(contact);
+		}
 		if (!edit) {
 			App.store.contactsBook = [contact, ...App.store.contactsBook];
 		}
-		App.clearCurrentContact();
+		App.state.comments = [];
 		App.store.save();
 		navigate("/");
 		return;
@@ -271,34 +250,36 @@ const onSaveContact = listen("click", ".btn-save", e => {
 
 const onRestoreBtn = listen("click", ".restore-btn", e => {
 	const version = e.target.getAttribute("data-version");
-
+	const contact = document.querySelector(".contact-card");
 	App.state.historyUndo = [
 		...App.state.historyUndo,
-		App.currentContact.currentVersion
+		contact.contactData.currentVersion
 	];
-
 	App.state.historyRedo = [];
 
 	updateUndoRedoButtons();
-	restoreToVersion(version);
+
+	restoreToVersion(contact.contactData, version);
 });
 
 const onUndoBtn = listen("click", ".undo-btn", e => {
+	const contact = document.querySelector(".contact-card");
 	if (!App.state.historyUndo.length) {
 		return;
 	}
 
 	const stateToChangeTo = App.state.historyUndo.pop();
 	App.state.historyRedo = [
-		App.currentContact.currentVersion,
+		contact.contactData.currentVersion,
 		...App.state.historyRedo
 	];
 
 	updateUndoRedoButtons();
-	restoreToVersion(stateToChangeTo);
+	restoreToVersion(contact.contactData, stateToChangeTo);
 });
 
 const onRedoBtn = listen("click", ".redo-btn", e => {
+	const contact = document.querySelector(".contact-card");
 	if (!App.state.historyRedo.length) {
 		return;
 	}
@@ -306,15 +287,15 @@ const onRedoBtn = listen("click", ".redo-btn", e => {
 	const stateToChangeTo = App.state.historyRedo.shift();
 	App.state.historyUndo = [
 		...App.state.historyUndo,
-		App.currentContact.currentVersion
+		contact.contactData.currentVersion
 	];
 
 	updateUndoRedoButtons();
-	restoreToVersion(stateToChangeTo);
+	restoreToVersion(contact.contactData, stateToChangeTo);
 });
 
-const restoreToVersion = version => {
-	App.currentContact.currentVersion = parseInt(version);
+const restoreToVersion = (contact, version) => {
+	contact.currentVersion = parseInt(version);
 	let history = document.querySelectorAll("li");
 	history.forEach(item => {
 		item.classList.remove("current");
@@ -322,7 +303,7 @@ const restoreToVersion = version => {
 	document
 		.querySelector(".details-content")
 		.replaceChild(
-			createViewContactCard(App.currentContact),
+			createViewContactCard(contact),
 			document.querySelector(".contact-card")
 		);
 
@@ -330,7 +311,7 @@ const restoreToVersion = version => {
 		.querySelector(`[data-version="${version}"]`)
 		.classList.add("current");
 
-	updateContact({ ...App.currentContact });
+	updateContact({ ...contact });
 	App.store.save();
 };
 
