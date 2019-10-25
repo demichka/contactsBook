@@ -291,7 +291,6 @@ const onRedoBtn = listen("click", ".redo-btn", e => {
 	];
 
 	updateUndoRedoButtons();
-	console.log(App.state, "after redo");
 
 	restoreToVersion(contact.contactData, stateToChangeTo);
 });
