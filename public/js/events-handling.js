@@ -291,11 +291,14 @@ const onRedoBtn = listen("click", ".redo-btn", e => {
 	];
 
 	updateUndoRedoButtons();
+	console.log(App.state, "after redo");
+
 	restoreToVersion(contact.contactData, stateToChangeTo);
 });
 
 const restoreToVersion = (contact, version) => {
 	contact.currentVersion = parseInt(version);
+	let c = new ContactCard(contact);
 	let history = document.querySelectorAll("li");
 	history.forEach(item => {
 		item.classList.remove("current");
@@ -311,7 +314,7 @@ const restoreToVersion = (contact, version) => {
 		.querySelector(`[data-version="${version}"]`)
 		.classList.add("current");
 
-	updateContact({ ...contact });
+	updateContact(c);
 	App.store.save();
 };
 
