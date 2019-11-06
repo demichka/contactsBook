@@ -398,7 +398,7 @@ const detailsContent = item => {
 const createHistoryList = item => {
 	let list, contact;
 	contact = {};
-	contact = { ...item };
+	contact = Object.assign(item);
 	list = document.createElement("ol");
 	list.reversed = "true";
 	list.classList.add("history-list", "col-12");

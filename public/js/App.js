@@ -108,9 +108,7 @@ function contactsBookInit() {
 
 		const details = createDetails();
 
-		history = detailsContent({
-			...this.store.contactsBook.find(item => item.id === id)
-		});
+		history = detailsContent(Object.assign(this.store.contactsBook.find(item => item.id === id)));
 
 		details.append(history);
 
